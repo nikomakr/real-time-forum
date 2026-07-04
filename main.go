@@ -8,6 +8,6 @@ import (
 
 func main() {
 	db.Init("./forum.db")
-	log.Println("server listerning on :8080")
+	log.Println("server listening on :8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
