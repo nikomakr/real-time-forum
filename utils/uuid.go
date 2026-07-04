@@ -1,15 +1,15 @@
 package utils
 
 import (
-	"log"
+	"fmt"
 
 	"github.com/gofrs/uuid"
 )
 
-func NewUUID() string {
-	id, err := uuid.NewV4() // I am not sure about NewV4 Vs NewV7. I might have to revisit this later.
+func NewUUID() (string, error) {
+	id, err := uuid.NewV7() // Changed to NewV7. It is more in-line with the db I want to use. It is also more future-proof and has better sorting properties.
 	if err != nil {
-		log.Fatalf("could not generate UUID: %v", err)
+		return "", fmt.Errorf("could not generate UUID: %w", err)
 	}
-	return id.String() // Converts the internal, raw 16-byte array representation of the UUID into the human-readable 36-character hyphenated string format aka xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`.
+	return id.String(), nil // Converts the internal, raw 16-byte array representation of the UUID into the human-readable 36-character hyphenated string format aka xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`.
 }
