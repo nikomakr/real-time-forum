@@ -3,14 +3,13 @@ package handlers_test
 import (
 	"bytes"
 	"database/sql"
+	_ "github.com/mattn/go-sqlite3"
 	"net/http"
 	"net/http/httptest"
-	"testing"
-
-	_ "github.com/mattn/go-sqlite3"
-
 	"real-time-forum/db"
 	"real-time-forum/handlers" // Adjust to your actual package path
+	"strings"
+	"testing"
 )
 
 // setupMockDB initialises an in-memory SQLite database for test isolation aka "test doubles" and sets it as the global db.DB for the handlers to use.
@@ -52,6 +51,7 @@ func TestRegisterHandlerVulnerabilities(t *testing.T) {
 		method         string
 		payload        string
 		expectedStatus int
+		expectedBody   string
 	}{
 		{
 			name:           "Bug 1: Reject Invalid HTTP Method",
@@ -82,12 +82,14 @@ func TestRegisterHandlerVulnerabilities(t *testing.T) {
 			method:         http.MethodPost,
 			payload:        `{"nickname":"existing_user","first_name":"Bob","last_name":"Doe","email":"unique@email.com","password":"password123","age":25,"gender":"male"}`,
 			expectedStatus: http.StatusConflict,
+			expectedBody:   "nickname already taken",
 		},
 		{
 			name:           "Bug 6: Collision Catch - Email Already Registered",
 			method:         http.MethodPost,
 			payload:        `{"nickname":"unique_user","first_name":"Bob","last_name":"Doe","email":"taken@email.com","password":"password123","age":25,"gender":"male"}`,
 			expectedStatus: http.StatusConflict,
+			expectedBody:   "email already registered",
 		},
 	}
 
@@ -98,15 +100,20 @@ func TestRegisterHandlerVulnerabilities(t *testing.T) {
 				t.Fatalf("Could not create HTTP request: %v", err)
 			}
 			req.Header.Set("Content-Type", "application/json")
-
 			rr := httptest.NewRecorder()
 			handler := http.HandlerFunc(handlers.Register)
-
 			handler.ServeHTTP(rr, req)
 
+			// Check status code
 			if rr.Code != tt.expectedStatus {
 				t.Errorf("[%s] Expected status %d, but got %d. Response Body: %s",
 					tt.name, tt.expectedStatus, rr.Code, rr.Body.String())
+			}
+
+			// Check body content if specified
+			if tt.expectedBody != "" && !strings.Contains(rr.Body.String(), tt.expectedBody) {
+				t.Errorf("[%s] Expected body to contain %q, got %q",
+					tt.name, tt.expectedBody, rr.Body.String())
 			}
 		})
 	}

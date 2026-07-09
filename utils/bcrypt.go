@@ -5,8 +5,9 @@ import (
 
 	"golang.org/x/crypto/bcrypt"
 )
-// Despite OWASP recommends the bcrypt.DefaultCost aka 10. I have decided to boost protection by using 12. Still meets the 250ms targetn and balances protection against database leaks. 
-const BcryptCost = 12 
+
+// Despite OWASP recommends the bcrypt.DefaultCost aka 10. I have decided to boost protection by using 12. Still meets the 250ms targetn and balances protection against database leaks.
+const BcryptCost = 12
 
 func HashPassword(password string) (string, error) {
 	hash, err := bcrypt.GenerateFromPassword([]byte(password), BcryptCost)
