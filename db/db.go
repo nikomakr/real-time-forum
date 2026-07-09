@@ -11,7 +11,7 @@ import (
 var DB *sql.DB
 
 func Init(path string) { // path is the server's file path, SQLite, of the database file.
-var err error // panic fixed with: var err error declares err explicitly. Plain = then assigns into the existing package-level DB rather than creating a new shadow variable.
+	var err error // panic fixed with: var err error declares err explicitly. Plain = then assigns into the existing package-level DB rather than creating a new shadow variable.
 
 	DB, err = sql.Open("sqlite3", path+"?_foreign_keys=on") // WITH ?_foreign_keys=on, SQLite will enforce foreign key constraints, ensuring referential integrity between related tables. This is important for maintaining data consistency and preventing orphaned records in the database. Don't forget Niko by default SQLite does not enforce foreign key constraints, so enabling this option is crucial when working with relational data.
 	if err != nil {

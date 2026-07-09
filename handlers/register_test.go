@@ -3,13 +3,14 @@ package handlers_test
 import (
 	"bytes"
 	"database/sql"
-	_ "github.com/mattn/go-sqlite3"
 	"net/http"
 	"net/http/httptest"
 	"real-time-forum/db"
 	"real-time-forum/handlers" // Adjust to your actual package path
 	"strings"
 	"testing"
+
+	_ "github.com/mattn/go-sqlite3"
 )
 
 // setupMockDB initialises an in-memory SQLite database for test isolation aka "test doubles" and sets it as the global db.DB for the handlers to use.

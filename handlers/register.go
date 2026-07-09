@@ -2,8 +2,13 @@ package handlers
 
 import (
 	"encoding/json"
-	"net/http"
+	"errors"
 	"log"
+	"net/http"
+	"strings"
+
+	"github.com/mattn/go-sqlite3"
+
 	"real-time-forum/db"
 	"real-time-forum/utils"
 )
@@ -24,50 +29,33 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	defer r.Body.Close() // Ensure the request body is closed after reading
+// Limit the size of the request body to prevent abuse
 	var payload registerPayload
 	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
 		utils.WriteError(w, http.StatusBadRequest, "invalid request body")
 		return
 	}
 
-	// Validate all required fields are present
 	if payload.Nickname == "" || payload.FirstName == "" || payload.LastName == "" ||
 		payload.Email == "" || payload.Password == "" ||
-		payload.Age == 0 || payload.Gender == "" {
-		utils.WriteError(w, http.StatusBadRequest, "all fields are required")
+		payload.Age <= 0 || payload.Gender == "" {
+		utils.WriteError(w, http.StatusBadRequest, "all fields are required and age must be a positive number")
 		return
 	}
 
-	// Check for duplicate nickname
-	var count int
-	db.DB.QueryRow("SELECT COUNT(*) FROM users WHERE nickname = ?", payload.Nickname).Scan(&count)
-	if count > 0 {
-		utils.WriteError(w, http.StatusConflict, "nickname already taken")
-		return
-	}
-
-	// Check for duplicate email
-	db.DB.QueryRow("SELECT COUNT(*) FROM users WHERE email = ?", payload.Email).Scan(&count)
-	if count > 0 {
-		utils.WriteError(w, http.StatusConflict, "email already registered")
-		return
-	}
-
-	// Hash password
 	hash, err := utils.HashPassword(payload.Password)
 	if err != nil {
 		utils.WriteError(w, http.StatusInternalServerError, "could not process password")
 		return
 	}
 
-	// Generate UUID
 	id, err := utils.NewUUID()
 	if err != nil {
 		utils.WriteError(w, http.StatusInternalServerError, "could not generate user ID")
 		return
 	}
 
-	// Insert user
 	_, err = db.DB.Exec(
 		`INSERT INTO users (id, nickname, first_name, last_name, email, password_hash, age, gender)
 		 VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
@@ -75,6 +63,20 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		payload.Email, hash, payload.Age, payload.Gender,
 	)
 	if err != nil {
+		var sqliteErr sqlite3.Error
+		if errors.As(err, &sqliteErr) && sqliteErr.ExtendedCode == sqlite3.ErrConstraintUnique {
+			msg := sqliteErr.Error()
+			if strings.Contains(msg, "users.nickname") || strings.Contains(msg, "\"nickname\"") {
+				utils.WriteError(w, http.StatusConflict, "nickname already taken")
+				return
+			}
+			if strings.Contains(msg, "users.email") || strings.Contains(msg, "\"email\"") {
+				utils.WriteError(w, http.StatusConflict, "email already registered")
+				return
+			}
+			utils.WriteError(w, http.StatusConflict, "nickname or email already registered")
+			return
+		}
 		utils.WriteError(w, http.StatusInternalServerError, "could not create user")
 		return
 	}
