@@ -30,7 +30,7 @@ func Register(w http.ResponseWriter, r *http.Request) {
 	}
 
 	defer r.Body.Close() // Ensure the request body is closed after reading
-// Limit the size of the request body to prevent abuse
+	// Limit the size of the request body to prevent abuse
 	var payload registerPayload
 	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
 		utils.WriteError(w, http.StatusBadRequest, "invalid request body")
@@ -41,6 +41,11 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		payload.Email == "" || payload.Password == "" ||
 		payload.Age <= 0 || payload.Gender == "" {
 		utils.WriteError(w, http.StatusBadRequest, "all fields are required and age must be a positive number")
+		return
+	}
+
+	if strings.Contains(payload.Nickname, "@") {
+		utils.WriteError(w, http.StatusBadRequest, "nickname cannot contain @")
 		return
 	}
 
