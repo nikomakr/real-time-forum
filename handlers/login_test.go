@@ -16,13 +16,15 @@ import (
 )
 
 func setupLoginDB(t *testing.T) {
-	mockDB, err := sql.Open("sqlite3", ":memory:")
+	mockDB, err := sql.Open("sqlite3", "file::memory:?cache=shared&mode=memory")
 	if err != nil {
 		t.Fatalf("failed to open mock DB: %v", err)
 	}
 
-	// 🔒 FIX: Ensures memory connections close automatically when the test finishes
+	// FIX: Ensures memory connections close automatically when the test finishes
+	mockDB.SetMaxOpenConns(1) // FIX: SQLite in-memory databases are per connection. Setting max open connections to 1 ensures that the same connection is used throughout the test, preserving the in-memory state.
 	t.Cleanup(func() {
+		db.DB = nil
 		mockDB.Close()
 	})
 

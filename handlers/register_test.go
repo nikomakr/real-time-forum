@@ -15,7 +15,8 @@ import (
 
 // setupMockDB initialises an in-memory SQLite database for test isolation aka "test doubles" and sets it as the global db.DB for the handlers to use.
 func setupMockDB(t *testing.T) {
-	mockDB, err := sql.Open("sqlite3", ":memory:")
+	mockDB, err := sql.Open("sqlite3", "file::memory:?cache=shared&mode=memory")
+	mockDB.SetMaxOpenConns(1)
 	if err != nil {
 		t.Fatalf("Failed to open mock DB: %v", err)
 	}
