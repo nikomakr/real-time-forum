@@ -111,7 +111,8 @@ func TestLoginHandler(t *testing.T) {
 		{
 			name:           "Reject oversized body (DoS Protection)",
 			payload:        `{"identifier":"` + strings.Repeat("A", 1024*1025) + `","password":"123"}`,
-			expectedStatus: http.StatusBadRequest,
+			expectedStatus: http.StatusRequestEntityTooLarge,
+			expectedBody:   "request body too large",
 		},
 	}
 

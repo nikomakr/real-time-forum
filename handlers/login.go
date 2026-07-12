@@ -32,6 +32,11 @@ func Login(w http.ResponseWriter, r *http.Request) {
 
 	var payload loginPayload
 	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+		var maxBytesErr *http.MaxBytesError
+		if errors.As(err, &maxBytesErr) {
+			utils.WriteError(w, http.StatusRequestEntityTooLarge, "request body too large")
+			return
+		}
 		utils.WriteError(w, http.StatusBadRequest, "invalid request body format")
 		return
 	}
