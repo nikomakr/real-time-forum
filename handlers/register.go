@@ -49,6 +49,11 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if !strings.Contains(payload.Email, "@") {
+		utils.WriteError(w, http.StatusBadRequest, "email must contain @")
+		return
+	}
+
 	hash, err := utils.HashPassword(payload.Password)
 	if err != nil {
 		utils.WriteError(w, http.StatusInternalServerError, "could not process password")
