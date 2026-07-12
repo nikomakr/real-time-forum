@@ -89,6 +89,12 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if err := createSession(w, id); err != nil {
+		log.Printf("[ERROR] [Login Session Creation Fault]: %v", err)
+		utils.WriteError(w, http.StatusInternalServerError, "could not create session")
+		return
+	}
+
 	if err := utils.WriteJSON(w, http.StatusOK, loginResponse{
 		Message: "login successful",
 		UserID:  id,
