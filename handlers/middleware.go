@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"log"
 	"net/http"
 	"time"
 
@@ -10,7 +11,7 @@ import (
 )
 
 // ContextKey is a custom type to avoid collisions with other packages using context values
-//WHY: Using a custom type for context keys helps prevent collisions with other packages that might use the same key names. By defining a unique type, we ensure that our context values are distinct and won't accidentally overwrite or be overwritten by values from other packages.
+// WHY: Using a custom type for context keys helps prevent collisions with other packages that might use the same key names. By defining a unique type, we ensure that our context values are distinct and won't accidentally overwrite or be overwritten by values from other packages.
 type contextKey string
 
 const contextUserID contextKey = "user_id"
@@ -27,7 +28,7 @@ func RequireAuth(next http.HandlerFunc) http.HandlerFunc {
 		// Look up the session in the database. I have used QueryRow as I have found it optimises connection performance by fetching only the very first matching row and automatically closing the database connection. So, that's in line with the best practices of database connection management and I kmow the way I approached it in my code is inline with it. I have session_id in sessions table as a primary key, so it will always return a single row!
 		var userID string
 		var expiresAt time.Time
-		err = db.DB.QueryRow( 
+		err = db.DB.QueryRow(
 			`SELECT user_id, expires_at FROM sessions WHERE session_id = ?`,
 			cookie.Value,
 		).Scan(&userID, &expiresAt)
@@ -51,8 +52,11 @@ func RequireAuth(next http.HandlerFunc) http.HandlerFunc {
 			if _, err := db.DB.Exec(
 				`UPDATE sessions SET expires_at = ? WHERE session_id = ?`,
 				newExpiry, cookie.Value,
-			); err != nil { // I added this just in case of system-level environmental failures
-				// Non-fatal — log and continue, user stays logged in with existing expiry
+			); err != nil {
+				log.Printf("[WARN] [Session Slide DB Fault]: %v", err)
+			} else {
+				// Only update the cookie if the DB update succeeded
+				// keeps browser expiry in sync with the database
 				http.SetCookie(w, &http.Cookie{
 					Name:     "session_id",
 					Value:    cookie.Value,
