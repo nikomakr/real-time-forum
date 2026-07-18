@@ -57,11 +57,13 @@ func RequireAuth(next http.HandlerFunc) http.HandlerFunc {
 			} else {
 				// Only update the cookie if the DB update succeeded
 				// keeps browser expiry in sync with the database
+				// HTTPS only to prevent cookie highjacking over insecure connections
 				http.SetCookie(w, &http.Cookie{
 					Name:     "session_id",
 					Value:    cookie.Value,
 					Expires:  newExpiry,
 					HttpOnly: true,
+					Secure:   true,
 					SameSite: http.SameSiteStrictMode,
 					Path:     "/",
 				})

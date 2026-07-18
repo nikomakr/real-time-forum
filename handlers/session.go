@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"crypto/rand" // For generating secure random bytes for session IDs
+	"crypto/rand"  // For generating secure random bytes for session IDs
 	"encoding/hex" // For encoding the random bytes into a hexadecimal string
 	"net/http"
 	"time"
@@ -12,7 +12,7 @@ import (
 const sessionDuration = 24 * time.Hour
 
 func createSession(w http.ResponseWriter, userID string) error {
-	bytes := make([]byte, 32) // 32 bytes = 256 bits, providing a strong level of entropy for the session ID. This length is sufficient to prevent brute-force attacks and ensure that session IDs are unique and hard to guess.
+	bytes := make([]byte, 32)                   // 32 bytes = 256 bits, providing a strong level of entropy for the session ID. This length is sufficient to prevent brute-force attacks and ensure that session IDs are unique and hard to guess.
 	if _, err := rand.Read(bytes); err != nil { // Use crypto/rand for cryptographically secure random number generation. This is crucial for generating session IDs that are unpredictable and resistant to attacks. The rand.Read function fills the byte slice with random data.
 		return err
 	}
@@ -33,8 +33,9 @@ func createSession(w http.ResponseWriter, userID string) error {
 	http.SetCookie(w, &http.Cookie{
 		Name:     "session_id",
 		Value:    sessionID,
-		Expires:  expiresAt, // UTC — matches database
+		Expires:  expiresAt,
 		HttpOnly: true,
+		Secure:   true,
 		SameSite: http.SameSiteStrictMode,
 		Path:     "/",
 	})
