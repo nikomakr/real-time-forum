@@ -67,7 +67,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	*/
 if errors.Is(err, sql.ErrNoRows) {
     // Dummy bcrypt compare — ensures consistent response time regardless of whether the account exists, preventing timing-based enumeration
-    utils.CheckPassword(payload.Password, "$2a$12$aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+    utils.CheckPassword(payload.Password, "$2a$12$KIXBsHWGgB4it6DI6NyNQOSXtbXGHMFuCTSWZTtDTNgOWtAiHXXfO")
     utils.WriteError(w, http.StatusUnauthorized, "invalid credentials")
     return
 }
