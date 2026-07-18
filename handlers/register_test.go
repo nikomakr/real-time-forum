@@ -107,6 +107,13 @@ func TestRegisterHandlerVulnerabilities(t *testing.T) {
 			expectedStatus: http.StatusBadRequest,
 			expectedBody:   "email must contain @",
 		},
+		{
+			name:           "Bug 9: Reject oversized body (DoS Protection)",
+			method:         http.MethodPost,
+			payload:        `{"nickname":"` + strings.Repeat("A", 1024*1025) + `","email":"x@x.com","password":"123","first_name":"A","last_name":"B","age":25,"gender":"male"}`,
+			expectedStatus: http.StatusRequestEntityTooLarge,
+			expectedBody:   "request body too large",
+		},
 	}
 
 	for _, tt := range tests {
