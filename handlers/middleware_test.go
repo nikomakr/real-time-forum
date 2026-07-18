@@ -3,7 +3,7 @@ package handlers_test
 import (
 	"database/sql"
 	"net/http"
-	"net/http/httptest" // For testing HTTP servers, provides utilities to create mock HTTP requests and record responses, allowing to test handlers without having a live server.
+	"net/http/httptest"
 	"testing"
 	"time"
 
@@ -68,7 +68,7 @@ func setupMiddlewareDB(t *testing.T) {
 		"valid-session-id", "uuid-123", time.Now().UTC().Add(24*time.Hour),
 	)
 	if err != nil {
-		t.Fatalf("failed to seed session: %v", err)
+		t.Fatalf("failed to seed valid session: %v", err)
 	}
 
 	_, err = mockDB.Exec(
@@ -77,6 +77,14 @@ func setupMiddlewareDB(t *testing.T) {
 	)
 	if err != nil {
 		t.Fatalf("failed to seed expired session: %v", err)
+	}
+
+	_, err = mockDB.Exec(
+		`INSERT INTO sessions (session_id, user_id, expires_at) VALUES (?, ?, ?)`,
+		"sliding-session-id", "uuid-123", time.Now().UTC().Add(6*time.Hour),
+	)
+	if err != nil {
+		t.Fatalf("failed to seed sliding session: %v", err)
 	}
 
 	db.DB = mockDB
@@ -130,5 +138,59 @@ func TestRequireAuth(t *testing.T) {
 				t.Errorf("expected status %d, got %d", tt.expectedStatus, rr.Code)
 			}
 		})
+	}
+}
+
+func TestGetUserID(t *testing.T) {
+	setupMiddlewareDB(t)
+
+	protected := handlers.RequireAuth(func(w http.ResponseWriter, r *http.Request) {
+		userID := handlers.GetUserID(r)
+		if userID != "uuid-123" {
+			t.Errorf("expected user ID 'uuid-123', got %q", userID)
+		}
+		w.WriteHeader(http.StatusOK)
+	})
+
+	req, _ := http.NewRequest(http.MethodGet, "/api/me", nil)
+	req.AddCookie(&http.Cookie{Name: "session_id", Value: "valid-session-id"})
+
+	rr := httptest.NewRecorder()
+	protected.ServeHTTP(rr, req)
+
+	if rr.Code != http.StatusOK {
+		t.Errorf("expected 200, got %d", rr.Code)
+	}
+}
+
+func TestSessionSliding(t *testing.T) {
+	setupMiddlewareDB(t)
+
+	protected := handlers.RequireAuth(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	})
+
+	req, _ := http.NewRequest(http.MethodGet, "/api/me", nil)
+	req.AddCookie(&http.Cookie{Name: "session_id", Value: "sliding-session-id"})
+
+	rr := httptest.NewRecorder()
+	protected.ServeHTTP(rr, req)
+
+	if rr.Code != http.StatusOK {
+		t.Errorf("expected 200, got %d", rr.Code)
+	}
+
+	found := false
+	for _, c := range rr.Result().Cookies() {
+		if c.Name == "session_id" {
+			found = true
+			if time.Until(c.Expires) < 12*time.Hour {
+				t.Errorf("expected extended cookie expiry, got %v", c.Expires)
+			}
+			break
+		}
+	}
+	if !found {
+		t.Errorf("expected updated session_id cookie but none was set")
 	}
 }
