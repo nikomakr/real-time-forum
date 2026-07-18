@@ -83,6 +83,7 @@ func TestLoginHandler(t *testing.T) {
 		payload        string
 		expectedStatus int
 		expectedBody   string
+		expectedCookie string
 	}{
 		{
 			name:           "Reject invalid HTTP method",
@@ -118,12 +119,14 @@ func TestLoginHandler(t *testing.T) {
 			payload:        `{"identifier":"niko","password":"secret123"}`,
 			expectedStatus: http.StatusOK,
 			expectedBody:   "login successful",
+			expectedCookie: "session_id",
 		},
 		{
 			name:           "Login with email",
 			payload:        `{"identifier":"niko@test.com","password":"secret123"}`,
 			expectedStatus: http.StatusOK,
 			expectedBody:   "login successful",
+			expectedCookie: "session_id",
 		},
 		{
 			name:           "Reject oversized body (DoS Protection)",
@@ -157,6 +160,18 @@ func TestLoginHandler(t *testing.T) {
 			if tt.expectedBody != "" && !strings.Contains(rr.Body.String(), tt.expectedBody) {
 				t.Errorf("expected body to contain %q, got %q",
 					tt.expectedBody, rr.Body.String())
+			}
+			if tt.expectedCookie != "" {
+				found := false
+				for _, c := range rr.Result().Cookies() {
+					if c.Name == tt.expectedCookie {
+						found = true
+						break
+					}
+				}
+				if !found {
+					t.Errorf("expected cookie %q to be set but it was not", tt.expectedCookie)
+				}
 			}
 		})
 	}
