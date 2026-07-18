@@ -93,6 +93,20 @@ func TestRegisterHandlerVulnerabilities(t *testing.T) {
 			expectedStatus: http.StatusConflict,
 			expectedBody:   "email already registered",
 		},
+		{
+			name:           "Bug 7: Reject nickname containing @",
+			method:         http.MethodPost,
+			payload:        `{"nickname":"niko@test","first_name":"Niko","last_name":"M","email":"niko@test.com","password":"secret123","age":30,"gender":"male"}`,
+			expectedStatus: http.StatusBadRequest,
+			expectedBody:   "nickname cannot contain @",
+		},
+		{
+			name:           "Bug 8: Reject email missing @",
+			method:         http.MethodPost,
+			payload:        `{"nickname":"niko","first_name":"Niko","last_name":"M","email":"nikotestcom","password":"secret123","age":30,"gender":"male"}`,
+			expectedStatus: http.StatusBadRequest,
+			expectedBody:   "email must contain @",
+		},
 	}
 
 	for _, tt := range tests {
