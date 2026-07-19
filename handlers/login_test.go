@@ -16,32 +16,47 @@ import (
 )
 
 func setupLoginDB(t *testing.T) {
-	mockDB, err := sql.Open("sqlite3", "file::memory:?cache=shared&mode=memory")
+	mockDB, err := sql.Open("sqlite3", ":memory:")
 	if err != nil {
 		t.Fatalf("failed to open mock DB: %v", err)
 	}
 
-	// FIX: Ensures memory connections close automatically when the test finishes
-	mockDB.SetMaxOpenConns(1) // FIX: SQLite in-memory databases are per connection. Setting max open connections to 1 ensures that the same connection is used throughout the test, preserving the in-memory state.
+	// SQLite in-memory databases are per connection. Setting max open connections to 1 ensures the same connection is used throughout the test, preserving the in-memory state.
+	mockDB.SetMaxOpenConns(1)
+
 	t.Cleanup(func() {
 		db.DB = nil
 		mockDB.Close()
 	})
 
+	// Users must be created before sessions — sessions has a foreign key to users
 	_, err = mockDB.Exec(`
 		CREATE TABLE users (
-			id TEXT PRIMARY KEY,
-			nickname TEXT UNIQUE,
-			first_name TEXT,
-			last_name TEXT,
-			email TEXT UNIQUE,
+			id            TEXT PRIMARY KEY,
+			nickname      TEXT UNIQUE,
+			first_name    TEXT,
+			last_name     TEXT,
+			email         TEXT UNIQUE,
 			password_hash TEXT,
-			age INTEGER,
-			gender TEXT
+			age           INTEGER,
+			gender        TEXT
 		);
 	`)
 	if err != nil {
-		t.Fatalf("failed to create table: %v", err)
+		t.Fatalf("failed to create users table: %v", err)
+	}
+
+	_, err = mockDB.Exec(`
+		CREATE TABLE sessions (
+			session_id TEXT PRIMARY KEY,
+			user_id    TEXT NOT NULL,
+			created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			expires_at DATETIME NOT NULL,
+			FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+		);
+	`)
+	if err != nil {
+		t.Fatalf("failed to create sessions table: %v", err)
 	}
 
 	hash, err := utils.HashPassword("secret123")
@@ -68,6 +83,7 @@ func TestLoginHandler(t *testing.T) {
 		payload        string
 		expectedStatus int
 		expectedBody   string
+		expectedCookie string
 	}{
 		{
 			name:           "Reject invalid HTTP method",
@@ -103,12 +119,14 @@ func TestLoginHandler(t *testing.T) {
 			payload:        `{"identifier":"niko","password":"secret123"}`,
 			expectedStatus: http.StatusOK,
 			expectedBody:   "login successful",
+			expectedCookie: "session_id",
 		},
 		{
 			name:           "Login with email",
 			payload:        `{"identifier":"niko@test.com","password":"secret123"}`,
 			expectedStatus: http.StatusOK,
 			expectedBody:   "login successful",
+			expectedCookie: "session_id",
 		},
 		{
 			name:           "Reject oversized body (DoS Protection)",
@@ -142,6 +160,18 @@ func TestLoginHandler(t *testing.T) {
 			if tt.expectedBody != "" && !strings.Contains(rr.Body.String(), tt.expectedBody) {
 				t.Errorf("expected body to contain %q, got %q",
 					tt.expectedBody, rr.Body.String())
+			}
+			if tt.expectedCookie != "" {
+				found := false
+				for _, c := range rr.Result().Cookies() {
+					if c.Name == tt.expectedCookie {
+						found = true
+						break
+					}
+				}
+				if !found {
+					t.Errorf("expected cookie %q to be set but it was not", tt.expectedCookie)
+				}
 			}
 		})
 	}

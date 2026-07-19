@@ -15,7 +15,7 @@ import (
 
 // setupMockDB initialises an in-memory SQLite database for test isolation aka "test doubles" and sets it as the global db.DB for the handlers to use.
 func setupMockDB(t *testing.T) {
-	mockDB, err := sql.Open("sqlite3", "file::memory:?cache=shared&mode=memory")
+	mockDB, err := sql.Open("sqlite3", ":memory:")
 	mockDB.SetMaxOpenConns(1)
 	if err != nil {
 		t.Fatalf("Failed to open mock DB: %v", err)
@@ -92,6 +92,27 @@ func TestRegisterHandlerVulnerabilities(t *testing.T) {
 			payload:        `{"nickname":"unique_user","first_name":"Bob","last_name":"Doe","email":"taken@email.com","password":"password123","age":25,"gender":"male"}`,
 			expectedStatus: http.StatusConflict,
 			expectedBody:   "email already registered",
+		},
+		{
+			name:           "Bug 7: Reject nickname containing @",
+			method:         http.MethodPost,
+			payload:        `{"nickname":"niko@test","first_name":"Niko","last_name":"M","email":"niko@test.com","password":"secret123","age":30,"gender":"male"}`,
+			expectedStatus: http.StatusBadRequest,
+			expectedBody:   "nickname cannot contain @",
+		},
+		{
+			name:           "Bug 8: Reject email missing @",
+			method:         http.MethodPost,
+			payload:        `{"nickname":"niko","first_name":"Niko","last_name":"M","email":"nikotestcom","password":"secret123","age":30,"gender":"male"}`,
+			expectedStatus: http.StatusBadRequest,
+			expectedBody:   "email must contain @",
+		},
+		{
+			name:           "Bug 9: Reject oversized body (DoS Protection)",
+			method:         http.MethodPost,
+			payload:        `{"nickname":"` + strings.Repeat("A", 1024*1025) + `","email":"x@x.com","password":"123","first_name":"A","last_name":"B","age":25,"gender":"male"}`,
+			expectedStatus: http.StatusRequestEntityTooLarge,
+			expectedBody:   "request body too large",
 		},
 	}
 
