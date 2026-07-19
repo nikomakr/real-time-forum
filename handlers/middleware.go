@@ -41,7 +41,9 @@ func RequireAuth(next http.HandlerFunc) http.HandlerFunc {
 		// Check session has not expired
 		if time.Now().UTC().After(expiresAt) {
 			// Clean up expired session from database
-			db.DB.Exec(`DELETE FROM sessions WHERE session_id = ?`, cookie.Value)
+			if _, err := db.DB.Exec(`DELETE FROM sessions WHERE session_id = ?`, cookie.Value); err != nil {
+				log.Printf("[WARN] [Expired Session Cleanup Fault]: %v", err)
+			}
 			utils.WriteError(w, http.StatusUnauthorized, "session expired")
 			return
 		}
