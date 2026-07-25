@@ -2186,3 +2186,686 @@ body{
 }
 
 }
+/* ==========================================================
+   LOADING SPINNER
+========================================================== */
+
+.loading{
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    padding:40px;
+
+}
+
+.spinner{
+
+    width:45px;
+
+    height:45px;
+
+    border:5px solid #e5e7eb;
+
+    border-top:5px solid #0066cc;
+
+    border-radius:50%;
+
+    animation:spin .8s linear infinite;
+
+}
+
+@keyframes spin{
+
+    from{
+
+        transform:rotate(0deg);
+
+    }
+
+    to{
+
+        transform:rotate(360deg);
+
+    }
+
+}
+
+
+/* ==========================================================
+   TOAST NOTIFICATIONS
+========================================================== */
+
+.toast{
+
+    position:fixed;
+
+    right:25px;
+
+    bottom:25px;
+
+    background:#1f2937;
+
+    color:white;
+
+    padding:16px 24px;
+
+    border-radius:12px;
+
+    box-shadow:0 12px 35px rgba(0,0,0,.25);
+
+    z-index:1000;
+
+    opacity:0;
+
+    visibility:hidden;
+
+    transform:translateY(20px);
+
+    transition:.3s;
+
+}
+
+.toast.show{
+
+    opacity:1;
+
+    visibility:visible;
+
+    transform:translateY(0);
+
+}
+
+.toast.success{
+
+    background:#16a34a;
+
+}
+
+.toast.error{
+
+    background:#dc2626;
+
+}
+
+.toast.warning{
+
+    background:#f59e0b;
+
+}
+
+.toast.info{
+
+    background:#2563eb;
+
+}
+
+
+/* ==========================================================
+   WEBSOCKET STATUS
+========================================================== */
+
+.websocket-status{
+
+    display:inline-flex;
+
+    align-items:center;
+
+    gap:8px;
+
+    padding:8px 14px;
+
+    border-radius:999px;
+
+    font-size:13px;
+
+    font-weight:600;
+
+}
+
+.websocket-status.online{
+
+    background:#dcfce7;
+
+    color:#15803d;
+
+}
+
+.websocket-status.offline{
+
+    background:#fee2e2;
+
+    color:#b91c1c;
+
+}
+
+.websocket-dot{
+
+    width:10px;
+
+    height:10px;
+
+    border-radius:50%;
+
+    background:currentColor;
+
+}
+
+
+/* ==========================================================
+   ONLINE USERS
+========================================================== */
+
+.online-count{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:10px;
+
+    font-weight:600;
+
+    color:#374151;
+
+    margin-bottom:20px;
+
+}
+
+.online-count::before{
+
+    content:"🟢";
+
+}
+
+
+/* ==========================================================
+   SEARCH RESULTS
+========================================================== */
+
+.search-results{
+
+    margin-top:20px;
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:16px;
+
+}
+
+.search-result{
+
+    background:white;
+
+    border-radius:14px;
+
+    padding:18px;
+
+    border:1px solid #e5e7eb;
+
+    transition:.25s;
+
+}
+
+.search-result:hover{
+
+    transform:translateY(-2px);
+
+    box-shadow:0 10px 25px rgba(0,0,0,.08);
+
+}
+
+
+/* ==========================================================
+   EMPTY SEARCH
+========================================================== */
+
+.no-results{
+
+    text-align:center;
+
+    padding:40px;
+
+    color:#6b7280;
+
+}
+
+
+/* ==========================================================
+   BACK TO TOP BUTTON
+========================================================== */
+
+#backToTop{
+
+    position:fixed;
+
+    right:25px;
+
+    bottom:95px;
+
+    width:52px;
+
+    height:52px;
+
+    border-radius:50%;
+
+    background:#0066cc;
+
+    color:white;
+
+    font-size:22px;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    box-shadow:0 10px 25px rgba(0,102,204,.35);
+
+    opacity:0;
+
+    visibility:hidden;
+
+    transition:.3s;
+
+    z-index:999;
+
+}
+
+#backToTop.show{
+
+    opacity:1;
+
+    visibility:visible;
+
+}
+
+#backToTop:hover{
+
+    background:#0053a8;
+
+    transform:translateY(-4px);
+
+}
+
+
+/* ==========================================================
+   HOVER EFFECTS
+========================================================== */
+
+button:hover{
+
+    transform:translateY(-2px);
+
+}
+
+button:active{
+
+    transform:scale(.98);
+
+}
+
+
+/* ==========================================================
+   FOCUS ACCESSIBILITY
+========================================================== */
+
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+a:focus-visible{
+
+    outline:3px solid #60a5fa;
+
+    outline-offset:3px;
+
+}
+
+
+/* ==========================================================
+   TRANSITIONS
+========================================================== */
+
+button,
+input,
+textarea,
+select,
+a,
+.discussion-card,
+.user{
+
+    transition:.25s ease;
+
+}
+/* ==========================================================
+   UTILITY CLASSES
+========================================================== */
+
+.text-center{
+
+    text-align:center;
+
+}
+
+.text-right{
+
+    text-align:right;
+
+}
+
+.hidden{
+
+    display:none !important;
+
+}
+
+.visible{
+
+    display:block !important;
+
+}
+
+.flex{
+
+    display:flex;
+
+}
+
+.flex-column{
+
+    flex-direction:column;
+
+}
+
+.align-center{
+
+    align-items:center;
+
+}
+
+.justify-between{
+
+    justify-content:space-between;
+
+}
+
+.w-100{
+
+    width:100%;
+
+}
+
+.mt-10{
+
+    margin-top:10px;
+
+}
+
+.mt-20{
+
+    margin-top:20px;
+
+}
+
+.mt-30{
+
+    margin-top:30px;
+
+}
+
+.mb-10{
+
+    margin-bottom:10px;
+
+}
+
+.mb-20{
+
+    margin-bottom:20px;
+
+}
+
+.mb-30{
+
+    margin-bottom:30px;
+
+}
+
+
+/* ==========================================================
+   BADGES
+========================================================== */
+
+.badge{
+
+    display:inline-block;
+
+    padding:6px 12px;
+
+    border-radius:999px;
+
+    font-size:13px;
+
+    font-weight:600;
+
+    background:#eef2ff;
+
+    color:#1e3a8a;
+
+}
+
+
+/* ==========================================================
+   AVATAR
+========================================================== */
+
+.avatar{
+
+    width:42px;
+
+    height:42px;
+
+    border-radius:50%;
+
+    background:#0066cc;
+
+    color:white;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    font-weight:600;
+
+    font-size:16px;
+
+}
+
+
+/* ==========================================================
+   DIVIDERS
+========================================================== */
+
+hr{
+
+    border:none;
+
+    border-top:1px solid #e5e7eb;
+
+    margin:25px 0;
+
+}
+
+
+/* ==========================================================
+   CARD ANIMATIONS
+========================================================== */
+
+.discussion-card{
+
+    animation:fadeUp .4s ease;
+
+}
+
+@keyframes fadeUp{
+
+    from{
+
+        opacity:0;
+
+        transform:translateY(20px);
+
+    }
+
+    to{
+
+        opacity:1;
+
+        transform:translateY(0);
+
+    }
+
+}
+
+
+/* ==========================================================
+   BUTTON ANIMATION
+========================================================== */
+
+.primary-btn,
+.secondary-btn,
+.like-btn,
+.comment-btn,
+.read-btn{
+
+    transition:.25s;
+
+}
+
+.primary-btn:hover,
+.secondary-btn:hover,
+.like-btn:hover,
+.comment-btn:hover,
+.read-btn:hover{
+
+    transform:translateY(-2px);
+
+}
+
+.primary-btn:active,
+.secondary-btn:active{
+
+    transform:scale(.98);
+
+}
+
+
+/* ==========================================================
+   TABLES
+========================================================== */
+
+table{
+
+    width:100%;
+
+    border-collapse:collapse;
+
+}
+
+th{
+
+    background:#f3f4f6;
+
+    text-align:left;
+
+    padding:14px;
+
+}
+
+td{
+
+    padding:14px;
+
+    border-bottom:1px solid #e5e7eb;
+
+}
+
+
+/* ==========================================================
+   SELECTION
+========================================================== */
+
+::selection{
+
+    background:#0066cc;
+
+    color:white;
+
+}
+
+
+/* ==========================================================
+   PLACEHOLDERS
+========================================================== */
+
+::placeholder{
+
+    color:#9ca3af;
+
+}
+
+
+/* ==========================================================
+   DISABLED BUTTONS
+========================================================== */
+
+button:disabled{
+
+    opacity:.6;
+
+    cursor:not-allowed;
+
+}
+
+
+/* ==========================================================
+   PRINT
+========================================================== */
+
+@media print{
+
+header,
+.sidebar,
+.chat-sidebar,
+footer,
+button{
+
+    display:none !important;
+
+}
+
+.main-layout{
+
+    display:block;
+
+}
+
+body{
+
+    background:white;
+
+    color:black;
+
+}
+
+}
+
