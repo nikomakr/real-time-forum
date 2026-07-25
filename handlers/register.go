@@ -28,19 +28,33 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		utils.WriteError(w, http.StatusMethodNotAllowed, "method not allowed")
 		return
 	}
+	r.Body = http.MaxBytesReader(w, r.Body, 1024*1024) // Limit the size of the request body to prevent abuse
+	defer r.Body.Close()                               // Ensure the request body is closed after reading
 
-	defer r.Body.Close() // Ensure the request body is closed after reading
-// Limit the size of the request body to prevent abuse
 	var payload registerPayload
 	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+		var maxBytesErr *http.MaxBytesError
+		if errors.As(err, &maxBytesErr) {
+			utils.WriteError(w, http.StatusRequestEntityTooLarge, "request body too large")
+			return
+		}
 		utils.WriteError(w, http.StatusBadRequest, "invalid request body")
 		return
 	}
-
 	if payload.Nickname == "" || payload.FirstName == "" || payload.LastName == "" ||
 		payload.Email == "" || payload.Password == "" ||
 		payload.Age <= 0 || payload.Gender == "" {
 		utils.WriteError(w, http.StatusBadRequest, "all fields are required and age must be a positive number")
+		return
+	}
+
+	if strings.Contains(payload.Nickname, "@") {
+		utils.WriteError(w, http.StatusBadRequest, "nickname cannot contain @")
+		return
+	}
+
+	if !strings.Contains(payload.Email, "@") {
+		utils.WriteError(w, http.StatusBadRequest, "email must contain @")
 		return
 	}
 

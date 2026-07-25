@@ -66,6 +66,8 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	   Instead, we deliberately return a vague "invalid credentials" error to mask the result.
 	*/
 	if errors.Is(err, sql.ErrNoRows) {
+		// Dummy bcrypt compare — ensures consistent response time regardless of whether the account exists, preventing timing-based enumeration
+		_ = utils.CheckPassword(payload.Password, "$2a$12$KIXBsHWGgB4it6DI6NyNQOSXtbXGHMFuCTSWZTtDTNgOWtAiHXXfO")
 		utils.WriteError(w, http.StatusUnauthorized, "invalid credentials")
 		return
 	}
@@ -86,6 +88,12 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	*/
 	if err := utils.CheckPassword(payload.Password, passwordHash); err != nil {
 		utils.WriteError(w, http.StatusUnauthorized, "invalid credentials")
+		return
+	}
+
+	if err := createSession(w, id); err != nil {
+		log.Printf("[ERROR] [Login Session Creation Fault]: %v", err)
+		utils.WriteError(w, http.StatusInternalServerError, "could not create session")
 		return
 	}
 
