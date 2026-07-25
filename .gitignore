@@ -1,8 +1,5 @@
-# SQLite database
 *.db
-
-# Compiled binary
+*.db-shm
+*.db-wal
 real-time-forum
-
-# macOS
 .DS_Store

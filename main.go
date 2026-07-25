@@ -11,6 +11,8 @@ import (
 func main() {
 	db.Init("./forum.db")
 
+	http.Handle("/", http.FileServer(http.Dir("./static")))
+
 	http.HandleFunc("/api/register", handlers.Register)
 	http.HandleFunc("/api/login", handlers.Login)
 
