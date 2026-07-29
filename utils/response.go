@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"bytes"
 	"encoding/json"
 	"net/http"
 )
@@ -15,10 +16,15 @@ func WriteError(w http.ResponseWriter, status int, message string) {
 }
 
 func WriteJSON(w http.ResponseWriter, status int, data any) error {
-	// Specifying UTF-8 prevents unexpected encoding issues
+	// NOTE: w.Header().Set() must always be called before w.WriteHeader().
+	// Once WriteHeader is called, headers are locked and any further Set() calls are silently ignored by the Go HTTP runtime.
+	// Encode into a buffer first — if encoding fails, no headers have been written yet so the caller can still return a proper error response to the client.
+	buf := &bytes.Buffer{}
+	if err := json.NewEncoder(buf).Encode(data); err != nil {
+		return err
+	}
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(status)
-
-	// Returning the error allows the caller to log serialisation failures
-	return json.NewEncoder(w).Encode(data)
+	_, err := buf.WriteTo(w)
+	return err
 }
