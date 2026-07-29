@@ -6,6 +6,7 @@ import (
 	"errors"
 	"log"
 	"net/http"
+	"strings"
 
 	"real-time-forum/db"
 	"real-time-forum/utils"
@@ -50,12 +51,21 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Single query — eliminates timing attack vector and double round-trip
+	// Route query by identifier type — @ presence means email, absence means nickname. Registration enforces these as mutually exclusive namespaces, so this routing is unambiguous and eliminates the OR query namespace collision risk as I had it.
 	var id, passwordHash string
-	err := db.DB.QueryRow(
-		`SELECT id, password_hash FROM users WHERE nickname = ? OR email = ? LIMIT 1`,
-		payload.Identifier, payload.Identifier,
-	).Scan(&id, &passwordHash)
+	var err error
+
+	if strings.Contains(payload.Identifier, "@") {
+		err = db.DB.QueryRow(
+			`SELECT id, password_hash FROM users WHERE email = ?`,
+			payload.Identifier,
+		).Scan(&id, &passwordHash)
+	} else {
+		err = db.DB.QueryRow(
+			`SELECT id, password_hash FROM users WHERE nickname = ?`,
+			payload.Identifier,
+		).Scan(&id, &passwordHash)
+	}
 
 	/*
 	   PROTECTION AGAINST USER ENUMERATION (ACCOUNT HARVESTING):

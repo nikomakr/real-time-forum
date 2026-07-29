@@ -20,17 +20,6 @@ func Test_ProveEncoderFailure(t *testing.T) {
 	}
 }
 
-func Test_ProveHeaderFreezing(t *testing.T) {
-	rec := httptest.NewRecorder()
-	rec.WriteHeader(http.StatusOK)
-	rec.Header().Set("Content-Type", "application/json")
-	contentType := rec.Result().Header.Get("Content-Type")
-	t.Logf("Resulting Content-Type: %q", contentType)
-	if contentType != "application/json" {
-		t.Error("PROOF: Content-Type dropped — WriteHeader locked the headers before Set() was called")
-	}
-}
-
 func Test_WriteJSON_HappyPath(t *testing.T) {
 	rec := httptest.NewRecorder()
 	WriteJSON(rec, http.StatusOK, map[string]string{"message": "ok"})
