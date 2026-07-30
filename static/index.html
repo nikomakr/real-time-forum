@@ -3,7 +3,6 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <!-- This tells the browser to use the actual device width and start at 1:1 scale -->
     <title>RentForum | UK Rental Advice Community</title>
     <link rel="stylesheet" href="style.css" id="theme-style" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -14,8 +13,10 @@
     />
   </head>
   <body>
+    <!-- ACCESSIBILITY -->
     <a href="#forum-page" class="skip-link">Skip to main content</a>
     <div aria-live="polite" aria-atomic="true" class="screen-reader"></div>
+
     <!-- ======================================================= LOGIN PAGE ======================================================= -->
     <section id="login-page" class="page active">
       <div class="auth-container">
@@ -45,7 +46,7 @@
             </button>
             <p class="switch-page">
               Don't have an account?
-              <a href="#" id="show-register"> Register </a>
+              <a href="#" id="show-register">Register</a>
             </p>
           </form>
         </div>
@@ -60,6 +61,7 @@
         </div>
       </div>
     </section>
+
     <!-- ======================================================= REGISTER PAGE ======================================================= -->
     <section id="register-page" class="page hidden">
       <div class="auth-container">
@@ -92,7 +94,7 @@
             </button>
             <p class="switch-page">
               Already have an account?
-              <a href="#" id="show-login"> Login </a>
+              <a href="#" id="show-login">Login</a>
             </p>
           </form>
         </div>
@@ -107,6 +109,7 @@
         </div>
       </div>
     </section>
+
     <!-- ======================================================= FORUM PAGE ======================================================= -->
     <section id="forum-page" class="page hidden">
       <header>
@@ -124,24 +127,22 @@
             placeholder="Search discussions..."
             autocomplete="off"
           />
-          <button id="themeToggleButton" aria-label="Toggle dark mode">
-            🌙
-          </button>
+          <button id="themeToggleButton" aria-label="Toggle dark mode">🌙</button>
           <button id="notificationButton" aria-label="Notifications">🔔</button>
           <div class="profile">
-            <span id="username"> Guest </span>
+            <span id="username">Guest</span>
             <button id="logoutButton" class="secondary-btn">Logout</button>
           </div>
           <button
             id="mobileMenuToggle"
             class="mobile-menu-toggle"
             aria-label="Toggle menu"
-          >
-            ☰
-          </button>
+          >☰</button>
         </div>
       </header>
+
       <div class="main-layout">
+
         <!-- LEFT SIDEBAR -->
         <aside class="sidebar">
           <h3>Categories</h3>
@@ -158,7 +159,8 @@
           </ul>
           <button id="new-post">+ New Discussion</button>
         </aside>
-        <!-- ============================ MAIN DISCUSSION FEED ============================= -->
+
+        <!-- MAIN DISCUSSION FEED -->
         <main class="feed">
           <section class="feed-header">
             <div>
@@ -169,71 +171,11 @@
               </p>
             </div>
           </section>
-          <section class="discussion-list">
-            <article class="discussion-card">
-              <span class="category england"> England </span>
-              <h3>Can my landlord increase my rent during a fixed tenancy?</h3>
-              <div class="discussion-meta">
-                <span>Posted by Sarah</span>
-                <span>•</span>
-                <span>2 hours ago</span>
-              </div>
-              <p>
-                My landlord has informed me that my rent will increase next
-                month even though I'm still in a fixed-term tenancy. Is this
-                allowed?
-              </p>
-              <div class="discussion-footer">
-                <button class="like-btn" id="likeButton">👍</button>
-                <button class="comment-btn" data-post-id="1">💬 7</button>
-                <button class="read-btn" data-post-id="1">
-                  Read Discussion
-                </button>
-              </div>
-            </article>
-            <article class="discussion-card">
-              <span class="category legal"> Legal Advice </span>
-              <h3>Deposit still hasn't been returned after 30 days</h3>
-              <div class="discussion-meta">
-                <span>Posted by James</span>
-                <span>•</span>
-                <span>Yesterday</span>
-              </div>
-              <p>
-                My tenancy ended over a month ago. The landlord has stopped
-                replying to my emails. What are my options?
-              </p>
-              <div class="discussion-footer">
-                <button class="like-btn">👍 35</button>
-                <button class="comment-btn" data-post-id="1">💬 7</button>
-                <button class="read-btn" data-post-id="1">
-                  Read Discussion
-                </button>
-              </div>
-            </article>
-            <article class="discussion-card">
-              <span class="category benefits"> Benefits </span>
-              <h3>Can Universal Credit help with rent arrears?</h3>
-              <div class="discussion-meta">
-                <span>Posted by Emma</span>
-                <span>•</span>
-                <span>Today</span>
-              </div>
-              <p>
-                I've recently lost my job and I'm struggling to keep up with my
-                rent payments. Has anyone received support?
-              </p>
-              <div class="discussion-footer">
-                <button class="like-btn" data-post-id="1">👍 11</button>
-                <button class="comment-btn" data-post-id="1">💬 7</button>
-                <button class="read-btn" data-post-id="1">
-                  Read Discussion
-                </button>
-              </div>
-            </article>
-          </section>
+          <!-- Posts rendered here by app.js -->
+          <section class="discussion-list" id="discussionList"></section>
         </main>
-        <!-- ============================ RIGHT SIDEBAR ============================= -->
+
+        <!-- RIGHT SIDEBAR -->
         <aside class="chat-sidebar">
           <div class="members-panel">
             <h3>Online Members</h3>
@@ -244,7 +186,7 @@
           <div class="chat-panel">
             <div class="chat-header">
               <h3>Private Messages</h3>
-              <span class="chat-status"> Connected </span>
+              <span class="chat-status">Connected</span>
             </div>
             <div class="chat-window" id="chatWindow"></div>
             <form id="messageForm">
@@ -261,15 +203,18 @@
             </form>
           </div>
         </aside>
+
       </div>
-      <!-- ========================================== NOTIFICATION DROPDOWN ========================================== -->
+
+      <!-- NOTIFICATION DROPDOWN -->
       <div id="notificationPanel" class="dropdown hidden">
         <div class="dropdown-header">
           <h3>Notifications</h3>
         </div>
         <ul class="notification-list" id="notificationList"></ul>
       </div>
-      <!-- ========================================== PROFILE DROPDOWN ========================================== -->
+
+      <!-- PROFILE DROPDOWN -->
       <div id="profileDropdown" class="dropdown hidden">
         <ul>
           <li>👤 My Profile</li>
@@ -278,7 +223,8 @@
           <li id="logoutDropdown">🚪 Logout</li>
         </ul>
       </div>
-      <!-- ========================================== MOBILE MENU ========================================== -->
+
+      <!-- MOBILE MENU -->
       <nav id="mobileMenu" class="mobile-menu hidden">
         <button class="mobile-link">🏠 Home</button>
         <button class="mobile-link">📂 Categories</button>
@@ -287,29 +233,35 @@
         <button class="mobile-link">👤 Profile</button>
         <button class="mobile-link">🚪 Logout</button>
       </nav>
-      <!-- ========================================== WEBSOCKET STATUS ========================================== -->
+
+      <!-- SOCKET STATUS -->
       <div id="socketStatus" class="socket-status">🟢 Connected</div>
-      <!-- ========================================== ONLINE USER COUNT ========================================== -->
+
+      <!-- ONLINE USER COUNT -->
       <div id="onlineCounter" class="online-counter">
-        Online Users: <strong>4</strong>
+        Online Users: <strong>0</strong>
       </div>
-      <!-- ========================================== SEARCH RESULTS ========================================== -->
+
+      <!-- SEARCH RESULTS -->
       <div id="searchResults" class="hidden">
         <h3>Search Results</h3>
         <div id="searchResultsList"></div>
       </div>
-      <!-- ========================================== BACK TO TOP ========================================== -->
+
+      <!-- BACK TO TOP -->
       <button id="backToTop">↑</button>
+
     </section>
+
     <!-- ========================================== CREATE DISCUSSION MODAL ========================================== -->
     <div id="createDiscussionModal" class="modal hidden">
       <div class="modal-content">
         <button class="close-modal">&times;</button>
         <h2>Create New Discussion</h2>
         <form id="discussionForm">
-          <label for="discussionTitle"> Title </label>
+          <label for="discussionTitle">Title</label>
           <input type="text" id="discussionTitle" maxlength="150" required />
-          <label for="discussionCategory"> Category </label>
+          <label for="discussionCategory">Category</label>
           <select id="discussionCategory">
             <option>England</option>
             <option>Wales</option>
@@ -320,12 +272,12 @@
             <option>Social Housing</option>
             <option>Private Renting</option>
           </select>
-          <label for="discussionBody"> Discussion </label>
+          <label for="discussionBody">Discussion</label>
           <textarea
             id="discussionBody"
             rows="8"
             maxlength="5000"
-            placeholder="Describe your issue..."
+            placeholder="Describe your issue or share your experience..."
             required
           ></textarea>
           <button type="submit" id="createDiscussionButton" class="primary-btn">
@@ -334,40 +286,24 @@
         </form>
       </div>
     </div>
+
     <!-- ========================================== VIEW DISCUSSION MODAL ========================================== -->
     <div id="discussionModal" class="modal hidden">
       <div class="modal-content large">
         <button class="close-modal">&times;</button>
-        <span class="category england"> England </span>
-        <h2 id="discussionHeading">Can my landlord increase my rent?</h2>
-        <div class="discussion-meta">
-          <span>Posted by Sarah</span>
-          <span>•</span>
-          <span>2 hours ago</span>
-        </div>
+        <span class="category england"></span>
+        <h2 id="discussionHeading"></h2>
+        <div class="discussion-meta"></div>
         <div class="discussion-content">
-          <p>
-            The full discussion will appear here when loaded from your Go
-            backend.
-          </p>
+          <p></p>
         </div>
         <hr />
         <section class="comments">
           <h3>Replies</h3>
-          <div id="commentsContainer">
-            <article class="comment">
-              <strong>James</strong>
-              <p>Check your tenancy agreement first.</p>
-              <small> 30 minutes ago </small>
-            </article>
-            <article class="comment">
-              <strong>Emma</strong>
-              <p>Citizens Advice has a useful guide.</p>
-              <small> 15 minutes ago </small>
-            </article>
-          </div>
+          <!-- Comments rendered here by app.js -->
+          <div id="commentsContainer"></div>
           <form id="commentForm">
-            <label for="commentText"> Write a reply </label>
+            <label for="commentText">Write a reply</label>
             <textarea id="commentText" rows="5" required></textarea>
             <button type="submit" id="replyButton" class="primary-btn">
               Post Reply
@@ -376,12 +312,15 @@
         </section>
       </div>
     </div>
+
     <!-- ========================================== LOADING SPINNER ========================================== -->
     <div id="loadingOverlay" class="hidden">
       <div class="spinner"></div>
     </div>
+
     <!-- ========================================== TOAST MESSAGE ========================================== -->
     <div id="toast" class="hidden">Action completed successfully.</div>
+
     <!-- ========================================== EMPTY STATES ========================================== -->
     <section id="emptyPosts" class="empty-state hidden">
       <span class="empty-icon">💬</span>
@@ -389,11 +328,13 @@
       <p>Be the first member to start a discussion.</p>
       <button class="primary-btn">Create Discussion</button>
     </section>
+
     <section id="emptyMessages" class="empty-state hidden">
       <span class="empty-icon">✉️</span>
       <h2>No messages</h2>
       <p>Start chatting with another member.</p>
     </section>
+
     <!-- ========================================== FOOTER ========================================== -->
     <footer>
       <div class="footer-content">
@@ -429,8 +370,7 @@
       </div>
       <div class="copyright">© 2026 RentForum. All rights reserved.</div>
     </footer>
-    <!-- ========================================== JavaScript ========================================== -->
-      <script src="app.js"></script>
+
     <!-- ========================================== USER PROFILE MODAL ========================================== -->
     <div id="profileModal" class="modal hidden">
       <div class="modal-content">
@@ -441,38 +381,31 @@
           <h3 id="profileName">Guest User</h3>
           <p id="profileEmail">guest@email.com</p>
           <div class="profile-stats">
-            <div>
-              <strong>12</strong>
-              <span>Posts</span>
-            </div>
-            <div>
-              <strong>34</strong>
-              <span>Comments</span>
-            </div>
-            <div>
-              <strong>5</strong>
-              <span>Likes</span>
-            </div>
+            <div><strong>0</strong><span>Posts</span></div>
+            <div><strong>0</strong><span>Comments</span></div>
+            <div><strong>0</strong><span>Likes</span></div>
           </div>
         </div>
       </div>
     </div>
+
     <!-- ========================================== SETTINGS MODAL ========================================== -->
     <div id="settingsModal" class="modal hidden">
       <div class="modal-content">
         <button class="close-modal">&times;</button>
         <h2>Settings</h2>
-        <label> Theme </label>
+        <label>Theme</label>
         <select id="themeSelect">
           <option>Light</option>
           <option>Dark</option>
         </select>
-        <label> Notifications </label>
+        <label>Notifications</label>
         <input type="checkbox" checked />
-        <label> Show Online Status </label>
+        <label>Show Online Status</label>
         <input type="checkbox" checked />
       </div>
     </div>
+
     <!-- ========================================== JAVASCRIPT TEMPLATES ========================================== -->
     <template id="discussionTemplate">
       <article class="discussion-card">
@@ -481,12 +414,13 @@
         <div class="discussion-meta"></div>
         <p class="discussion-preview"></p>
         <div class="discussion-footer">
-          <button class="like-btn" data-post-id="1">👍 18</button>
-          <button class="comment-btn" data-post-id="1">💬 7</button>
-          <button class="read-btn" data-post-id="1">Read Discussion</button>
+          <button class="like-btn">👍</button>
+          <button class="comment-btn">💬 0</button>
+          <button class="read-btn">Read Discussion</button>
         </div>
       </article>
     </template>
+
     <template id="messageTemplate">
       <div class="message received">
         <span class="sender"></span>
@@ -494,6 +428,7 @@
         <small></small>
       </div>
     </template>
+
     <template id="commentTemplate">
       <article class="comment">
         <strong></strong>
@@ -501,5 +436,8 @@
         <small></small>
       </article>
     </template>
+
+    <!-- JAVASCRIPT -->
+    <script src="app.js"></script>
   </body>
 </html>
