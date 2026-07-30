@@ -16,6 +16,7 @@ func main() {
 	http.HandleFunc("/api/register", handlers.Register)
 	http.HandleFunc("/api/login", handlers.Login)
 	http.HandleFunc("/api/logout", handlers.RequireAuth(handlers.Logout))
+	http.HandleFunc("/api/posts/", handlers.RequireAuth(handlers.GetPost))
 
 	// The following endpoint is protected by the RequireAuth middleware, which checks for a valid session cookie and ensures the user is authenticated before allowing access to the /api/me endpoint. If the user is authenticated, their user ID is returned in the response.
 	http.HandleFunc("/api/me", handlers.RequireAuth(func(w http.ResponseWriter, r *http.Request) {
