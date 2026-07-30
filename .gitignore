@@ -3,3 +3,4 @@
 *.db-wal
 real-time-forum
 .DS_Store
+.vscode/
