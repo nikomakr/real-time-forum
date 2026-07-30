@@ -1,8 +1,11 @@
 package handlers
 
 import (
+	"database/sql"
+	"errors"
 	"log"
 	"net/http"
+	"path"
 
 	"real-time-forum/db"
 	"real-time-forum/utils"
@@ -16,6 +19,81 @@ type postResponse struct {
 	Categories   []string `json:"categories"`
 	CommentCount int      `json:"comment_count"`
 	CreatedAt    string   `json:"created_at"`
+}
+
+type postDetailResponse struct {
+	ID           string   `json:"id"`
+	Title        string   `json:"title"`
+	Content      string   `json:"content"`
+	Author       string   `json:"author"`
+	Categories   []string `json:"categories"`
+	CommentCount int      `json:"comment_count"`
+	CreatedAt    string   `json:"created_at"`
+}
+
+func GetPost(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		utils.WriteError(w, http.StatusMethodNotAllowed, "method not allowed")
+		return
+	}
+
+	// Extract post ID from URL path — /api/posts/{id}
+	id := path.Base(r.URL.Path)
+	if id == "" || id == "/" || id == "posts" {
+		utils.WriteError(w, http.StatusBadRequest, "post ID is required")
+		return
+	}
+
+	var post postDetailResponse
+	var categoryStr string
+
+	err := db.DB.QueryRow(`
+		SELECT
+			p.id,
+			p.title,
+			p.content,
+			p.created_at,
+			u.nickname,
+			COALESCE((
+				SELECT GROUP_CONCAT(c.name, ',')
+				FROM post_categories pc
+				JOIN categories c ON pc.category_id = c.id
+				WHERE pc.post_id = p.id
+			), '') AS categories,
+			(SELECT COUNT(*) FROM comments WHERE post_id = p.id) AS comment_count
+		FROM posts p
+		JOIN users u ON p.author_id = u.id
+		WHERE p.id = ?
+	`, id).Scan(
+		&post.ID,
+		&post.Title,
+		&post.Content,
+		&post.CreatedAt,
+		&post.Author,
+		&categoryStr,
+		&post.CommentCount,
+	)
+
+	if errors.Is(err, sql.ErrNoRows) {
+		utils.WriteError(w, http.StatusNotFound, "post not found")
+		return
+	}
+
+	if err != nil {
+		log.Printf("[ERROR] [GetPost DB Query]: %v", err)
+		utils.WriteError(w, http.StatusInternalServerError, "could not fetch post")
+		return
+	}
+
+	if categoryStr != "" {
+		post.Categories = utils.SplitAndTrim(categoryStr, ",")
+	} else {
+		post.Categories = []string{}
+	}
+
+	if err := utils.WriteJSON(w, http.StatusOK, post); err != nil {
+		log.Printf("[ERROR] [GetPost Response JSON]: %v", err)
+	}
 }
 
 func GetPosts(w http.ResponseWriter, r *http.Request) {

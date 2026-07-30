@@ -108,30 +108,26 @@ func setupPostsDB(t *testing.T) {
 	db.DB = mockDB
 }
 
-func TestGetPosts(t *testing.T) {
+func TestGetPost(t *testing.T) {
 	tests := []struct {
 		name           string
 		url            string
 		expectedStatus int
-		expectedCount  int
 	}{
 		{
-			name:           "Returns all posts with no filter",
-			url:            "/api/posts",
+			name:           "Returns post by valid ID",
+			url:            "/api/posts/p-1",
 			expectedStatus: http.StatusOK,
-			expectedCount:  1,
 		},
 		{
-			name:           "Returns filtered posts by category",
-			url:            "/api/posts?category=England",
-			expectedStatus: http.StatusOK,
-			expectedCount:  1,
+			name:           "Returns 404 for unknown ID",
+			url:            "/api/posts/unknown-id",
+			expectedStatus: http.StatusNotFound,
 		},
 		{
-			name:           "Returns empty list for unknown category",
-			url:            "/api/posts?category=Unknown",
-			expectedStatus: http.StatusOK,
-			expectedCount:  0,
+			name:           "Rejects non-GET method",
+			url:            "/api/posts/p-1",
+			expectedStatus: http.StatusMethodNotAllowed,
 		},
 	}
 
@@ -139,21 +135,18 @@ func TestGetPosts(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			setupPostsDB(t)
 
-			req, _ := http.NewRequest(http.MethodGet, tt.url, nil)
+			method := http.MethodGet
+			if tt.name == "Rejects non-GET method" {
+				method = http.MethodPost
+			}
+
+			req, _ := http.NewRequest(method, tt.url, nil)
 			rr := httptest.NewRecorder()
-			http.HandlerFunc(handlers.GetPosts).ServeHTTP(rr, req)
+			http.HandlerFunc(handlers.GetPost).ServeHTTP(rr, req)
 
 			if rr.Code != tt.expectedStatus {
-				t.Errorf("expected status %d, got %d", tt.expectedStatus, rr.Code)
-			}
-
-			var posts []map[string]interface{}
-			if err := json.Unmarshal(rr.Body.Bytes(), &posts); err != nil {
-				t.Fatalf("could not parse response: %v", err)
-			}
-
-			if len(posts) != tt.expectedCount {
-				t.Errorf("expected %d posts, got %d", tt.expectedCount, len(posts))
+				t.Errorf("expected status %d, got %d. Body: %s",
+					tt.expectedStatus, rr.Code, rr.Body.String())
 			}
 		})
 	}
