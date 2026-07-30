@@ -1,19 +1,29 @@
 // RENTFORUM — Single Page Application
 
+// =====================================================
 // PAGE REFERENCES
+// =====================================================
 const loginPage = document.getElementById("login-page");
 const registerPage = document.getElementById("register-page");
 const forumPage = document.getElementById("forum-page");
 
+// =====================================================
 // FORM REFERENCES
+// =====================================================
 const loginForm = document.getElementById("loginForm");
 const registerForm = document.getElementById("registerForm");
+const discussionForm = document.getElementById("discussionForm");
+const commentForm = document.getElementById("commentForm");
 
+// =====================================================
 // LOGIN INPUTS
+// =====================================================
 const loginUsername = document.getElementById("login-username");
 const loginPassword = document.getElementById("login-password");
 
+// =====================================================
 // REGISTER INPUTS
+// =====================================================
 const nickname = document.getElementById("nickname");
 const firstName = document.getElementById("first-name");
 const lastName = document.getElementById("last-name");
@@ -22,26 +32,52 @@ const password = document.getElementById("password");
 const age = document.getElementById("age");
 const gender = document.getElementById("gender");
 
+// =====================================================
 // BUTTONS
+// =====================================================
 const logoutButton = document.getElementById("logoutButton");
 const showRegister = document.getElementById("show-register");
 const showLogin = document.getElementById("show-login");
+const newPostButton = document.getElementById("new-post");
 
+// =====================================================
+// FORUM ELEMENTS
+// =====================================================
+const discussionList = document.getElementById("discussionList");
+const createDiscussionModal = document.getElementById("createDiscussionModal");
+const discussionModal = document.getElementById("discussionModal");
+const commentsContainer = document.getElementById("commentsContainer");
+const discussionTemplate = document.getElementById("discussionTemplate");
+const commentTemplate = document.getElementById("commentTemplate");
+
+// =====================================================
+// STATE
+// =====================================================
+let currentPostId = null;
+let activeCategory = "all";
+
+// =====================================================
 // ERROR CONTAINERS
+// =====================================================
 let loginError;
 let registerError;
 
+// =====================================================
 // CREATE ERROR ELEMENTS
+// =====================================================
 function createErrorContainers() {
   loginError = document.createElement("p");
   loginError.className = "form-error";
   loginForm.appendChild(loginError);
+
   registerError = document.createElement("p");
   registerError.className = "form-error";
   registerForm.appendChild(registerError);
 }
 
+// =====================================================
 // SHOW PAGE
+// =====================================================
 function showPage(page) {
   document.querySelectorAll(".page").forEach((section) => {
     section.classList.remove("active");
@@ -51,44 +87,43 @@ function showPage(page) {
   page.classList.add("active");
 }
 
-// SHOW LOGIN
+// =====================================================
+// NAVIGATION
+// =====================================================
 function goToLogin() {
   clearErrors();
   loginForm.reset();
   showPage(loginPage);
 }
 
-// SHOW REGISTER
 function goToRegister() {
   clearErrors();
   registerForm.reset();
   showPage(registerPage);
 }
 
-// SHOW FORUM
-function goToForum() {
+async function goToForum() {
   clearErrors();
   showPage(forumPage);
+  await loadFeed(activeCategory);
 }
 
+// =====================================================
 // CLEAR ERRORS
+// =====================================================
 function clearErrors() {
-  if (loginError) {
-    loginError.textContent = "";
-  }
-  if (registerError) {
-    registerError.textContent = "";
-  }
+  if (loginError) loginError.textContent = "";
+  if (registerError) registerError.textContent = "";
 }
 
-// CHECK SESSION
+// =====================================================
+// SESSION RESTORE
+// =====================================================
 async function restoreSession() {
   try {
-    const response = await fetch("/api/me", {
-      credentials: "include",
-    });
+    const response = await fetch("/api/me", { credentials: "include" });
     if (response.ok) {
-      goToForum();
+      await goToForum();
     } else {
       goToLogin();
     }
@@ -98,7 +133,9 @@ async function restoreSession() {
   }
 }
 
+// =====================================================
 // LINK NAVIGATION
+// =====================================================
 showRegister.addEventListener("click", (event) => {
   event.preventDefault();
   goToRegister();
@@ -109,7 +146,9 @@ showLogin.addEventListener("click", (event) => {
   goToLogin();
 });
 
+// =====================================================
 // VALIDATION HELPERS
+// =====================================================
 function showLoginError(message) {
   loginError.textContent = message;
 }
@@ -118,7 +157,9 @@ function showRegisterError(message) {
   registerError.textContent = message;
 }
 
+// =====================================================
 // REGISTER VALIDATION
+// =====================================================
 function validateRegistration() {
   clearErrors();
   if (nickname.value.trim() === "") {
@@ -161,12 +202,13 @@ function validateRegistration() {
   return true;
 }
 
+// =====================================================
 // REGISTER USER
+// =====================================================
 async function registerUser(event) {
   event.preventDefault();
-  if (!validateRegistration()) {
-    return;
-  }
+  if (!validateRegistration()) return;
+
   const payload = {
     nickname: nickname.value.trim(),
     first_name: firstName.value.trim(),
@@ -176,15 +218,15 @@ async function registerUser(event) {
     age: Number(age.value),
     gender: gender.value,
   };
+
   try {
     const response = await fetch("/api/register", {
       method: "POST",
       credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     });
+
     if (!response.ok) {
       let errorMessage = "Registration failed.";
       try {
@@ -194,6 +236,7 @@ async function registerUser(event) {
       showRegisterError(errorMessage);
       return;
     }
+
     registerForm.reset();
     clearErrors();
     alert("Registration successful. Please log in.");
@@ -204,10 +247,11 @@ async function registerUser(event) {
   }
 }
 
-// REGISTER EVENT
 registerForm.addEventListener("submit", registerUser);
 
+// =====================================================
 // LOGIN VALIDATION
+// =====================================================
 function validateLogin() {
   clearErrors();
   if (loginUsername.value.trim() === "") {
@@ -221,25 +265,26 @@ function validateLogin() {
   return true;
 }
 
+// =====================================================
 // LOGIN USER
+// =====================================================
 async function loginUser(event) {
   event.preventDefault();
-  if (!validateLogin()) {
-    return;
-  }
+  if (!validateLogin()) return;
+
   const payload = {
     identifier: loginUsername.value.trim(),
     password: loginPassword.value,
   };
+
   try {
     const response = await fetch("/api/login", {
       method: "POST",
       credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     });
+
     if (!response.ok) {
       let errorMessage = "Login failed.";
       try {
@@ -249,19 +294,21 @@ async function loginUser(event) {
       showLoginError(errorMessage);
       return;
     }
+
     loginForm.reset();
     clearErrors();
-    goToForum();
+    await goToForum();
   } catch (error) {
     console.error(error);
     showLoginError("Unable to connect to the server.");
   }
 }
 
-// LOGIN EVENT
 loginForm.addEventListener("submit", loginUser);
 
+// =====================================================
 // LOGOUT
+// =====================================================
 async function logoutUser() {
   try {
     const response = await fetch("/api/logout", {
@@ -277,20 +324,20 @@ async function logoutUser() {
   loginForm.reset();
   registerForm.reset();
   clearErrors();
+  activeCategory = "all";
   goToLogin();
 }
 
-// LOGOUT EVENT
 if (logoutButton) {
   logoutButton.addEventListener("click", logoutUser);
 }
 
+// =====================================================
 // AUTH GUARD
+// =====================================================
 async function requireAuthentication() {
   try {
-    const response = await fetch("/api/me", {
-      credentials: "include",
-    });
+    const response = await fetch("/api/me", { credentials: "include" });
     if (!response.ok) {
       goToLogin();
       return false;
@@ -303,30 +350,365 @@ async function requireAuthentication() {
   }
 }
 
-// OPEN FORUM
-async function openForum() {
-  const authenticated = await requireAuthentication();
-  if (!authenticated) {
-    return;
-  }
-  goToForum();
+// =====================================================
+// UTILITY HELPERS
+// =====================================================
+function escapeHTML(str) {
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 }
 
+function truncate(str, max) {
+  if (!str) return "";
+  return str.length > max ? str.slice(0, max) + "…" : str;
+}
+
+function formatDate(dateStr) {
+  if (!dateStr) return "";
+  const date = new Date(dateStr);
+  if (isNaN(date)) return dateStr;
+  return date.toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+function slugify(category) {
+  if (!category) return "";
+  return category
+    .toLowerCase()
+    .replace(/\s+/g, "-")
+    .replace(/[^a-z0-9-]/g, "");
+}
+
+// =====================================================
+// CATEGORY FILTER STRIP
+// =====================================================
+const categoryMap = {
+  "category-all": "all",
+  "category-england": "England",
+  "category-wales": "Wales",
+  "category-scotland": "Scotland",
+  "category-ni": "N. Ireland",
+  "category-benefits": "Benefits",
+  "category-legal": "Legal Advice",
+  "category-social": "Social Housing",
+  "category-private": "Private Renting",
+};
+
+function initCategoryFilter() {
+  Object.keys(categoryMap).forEach((id) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener("click", () => {
+      // Update active state
+      document.querySelectorAll(".categories li").forEach((li) => {
+        li.classList.remove("active-category");
+      });
+      el.classList.add("active-category");
+      activeCategory = categoryMap[id];
+      loadFeed(activeCategory);
+    });
+  });
+}
+
+// =====================================================
+// FEED VIEW
+// =====================================================
+async function loadFeed(category = "all") {
+  if (!discussionList) return;
+  discussionList.innerHTML = '<p class="loading-text">Loading discussions…</p>';
+
+  let url = "/api/posts";
+  if (category && category !== "all") {
+    url += `?category=${encodeURIComponent(category)}`;
+  }
+
+  try {
+    const response = await fetch(url, { credentials: "include" });
+    if (!response.ok) {
+      discussionList.innerHTML =
+        '<p class="feed-error">Could not load discussions.</p>';
+      return;
+    }
+    const posts = await response.json();
+    renderFeed(posts);
+  } catch (error) {
+    console.error(error);
+    discussionList.innerHTML =
+      '<p class="feed-error">Could not connect to the server.</p>';
+  }
+}
+
+function renderFeed(posts) {
+  if (!discussionList) return;
+  discussionList.innerHTML = "";
+
+  if (!posts || posts.length === 0) {
+    discussionList.innerHTML =
+      '<p class="no-results">No discussions found. Be the first to post!</p>';
+    return;
+  }
+
+  posts.forEach((post) => {
+    const card = buildPostCard(post);
+    discussionList.appendChild(card);
+  });
+}
+
+// =====================================================
+// POST CARD COMPONENT
+// =====================================================
+function buildPostCard(post) {
+  const template = discussionTemplate.content.cloneNode(true);
+
+  const categoryEl = template.querySelector(".category");
+  categoryEl.textContent = post.category || "";
+  categoryEl.className = `category ${slugify(post.category)}`;
+
+  template.querySelector("h3").textContent = post.title || "";
+
+  template.querySelector(".discussion-meta").innerHTML =
+    `<span>Posted by ${escapeHTML(post.author || "Anonymous")}</span>
+     <span>•</span>
+     <span>${formatDate(post.created_at)}</span>`;
+
+  template.querySelector(".discussion-preview").textContent = truncate(
+    post.content || "",
+    160,
+  );
+
+  const readBtn = template.querySelector(".read-btn");
+  readBtn.dataset.postId = post.id;
+  readBtn.addEventListener("click", () => openPostDetail(post.id));
+
+  const commentBtn = template.querySelector(".comment-btn");
+  commentBtn.textContent = `💬 ${post.comment_count || 0}`;
+  commentBtn.dataset.postId = post.id;
+  commentBtn.addEventListener("click", () => openPostDetail(post.id));
+
+  const likeBtn = template.querySelector(".like-btn");
+  if (likeBtn) likeBtn.textContent = `👍 ${post.like_count || 0}`;
+
+  return template;
+}
+
+// =====================================================
+// POST DETAIL VIEW
+// =====================================================
+async function openPostDetail(postId) {
+  currentPostId = postId;
+
+  try {
+    const [postRes, commentsRes] = await Promise.all([
+      fetch(`/api/posts/${postId}`, { credentials: "include" }),
+      fetch(`/api/posts/${postId}/comments`, { credentials: "include" }),
+    ]);
+
+    if (!postRes.ok) {
+      alert("Could not load this discussion.");
+      return;
+    }
+
+    const post = await postRes.json();
+    const comments = commentsRes.ok ? await commentsRes.json() : [];
+
+    renderPostDetail(post);
+    renderComments(comments);
+    discussionModal.classList.remove("hidden");
+  } catch (error) {
+    console.error(error);
+    alert("Could not connect to the server.");
+  }
+}
+
+function renderPostDetail(post) {
+  const categoryEl = discussionModal.querySelector(".category");
+  categoryEl.textContent = post.category || "";
+  categoryEl.className = `category ${slugify(post.category)}`;
+
+  document.getElementById("discussionHeading").textContent = post.title || "";
+
+  discussionModal.querySelector(".discussion-meta").innerHTML =
+    `<span>Posted by ${escapeHTML(post.author || "Anonymous")}</span>
+     <span>•</span>
+     <span>${formatDate(post.created_at)}</span>`;
+
+  discussionModal.querySelector(".discussion-content p").textContent =
+    post.content || "";
+}
+
+// =====================================================
+// COMMENTS LIST
+// =====================================================
+function renderComments(comments) {
+  if (!commentsContainer) return;
+  commentsContainer.innerHTML = "";
+
+  if (!comments || comments.length === 0) {
+    commentsContainer.innerHTML =
+      '<p class="no-results">No replies yet. Be the first!</p>';
+    return;
+  }
+
+  comments.forEach((comment) => {
+    const template = commentTemplate.content.cloneNode(true);
+    template.querySelector("strong").textContent =
+      comment.author || "Anonymous";
+    template.querySelector("p").textContent = comment.content || "";
+    template.querySelector("small").textContent = formatDate(
+      comment.created_at,
+    );
+    commentsContainer.appendChild(template);
+  });
+}
+
+// =====================================================
+// COMMENT FORM
+// =====================================================
+async function submitComment(event) {
+  event.preventDefault();
+  if (!currentPostId) return;
+
+  const commentText = document.getElementById("commentText");
+  const content = commentText.value.trim();
+  if (!content) return;
+
+  try {
+    const response = await fetch(`/api/posts/${currentPostId}/comments`, {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ content }),
+    });
+
+    if (!response.ok) {
+      alert("Could not post reply.");
+      return;
+    }
+
+    commentText.value = "";
+
+    // Reload comments after posting
+    const commentsRes = await fetch(`/api/posts/${currentPostId}/comments`, {
+      credentials: "include",
+    });
+    const comments = commentsRes.ok ? await commentsRes.json() : [];
+    renderComments(comments);
+  } catch (error) {
+    console.error(error);
+    alert("Could not connect to the server.");
+  }
+}
+
+if (commentForm) {
+  commentForm.addEventListener("submit", submitComment);
+}
+
+// =====================================================
+// CREATE POST VIEW
+// =====================================================
+function openCreatePost() {
+  if (createDiscussionModal) {
+    createDiscussionModal.classList.remove("hidden");
+  }
+}
+
+function closeCreatePost() {
+  if (createDiscussionModal) {
+    createDiscussionModal.classList.add("hidden");
+  }
+  if (discussionForm) discussionForm.reset();
+}
+
+async function submitPost(event) {
+  event.preventDefault();
+
+  const titleEl = document.getElementById("discussionTitle");
+  const categoryEl = document.getElementById("discussionCategory");
+  const bodyEl = document.getElementById("discussionBody");
+
+  const title = titleEl ? titleEl.value.trim() : "";
+  const category = categoryEl ? categoryEl.value : "";
+  const content = bodyEl ? bodyEl.value.trim() : "";
+
+  if (!title) {
+    alert("Please enter a title.");
+    return;
+  }
+  if (!content) {
+    alert("Please enter the discussion content.");
+    return;
+  }
+
+  try {
+    const response = await fetch("/api/posts", {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ title, category, content }),
+    });
+
+    if (!response.ok) {
+      alert("Could not create discussion.");
+      return;
+    }
+
+    closeCreatePost();
+    await loadFeed(activeCategory);
+  } catch (error) {
+    console.error(error);
+    alert("Could not connect to the server.");
+  }
+}
+
+if (discussionForm) {
+  discussionForm.addEventListener("submit", submitPost);
+}
+
+if (newPostButton) {
+  newPostButton.addEventListener("click", openCreatePost);
+}
+
+// =====================================================
+// CLOSE MODALS
+// =====================================================
+document.querySelectorAll(".close-modal").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".modal").forEach((modal) => {
+      modal.classList.add("hidden");
+    });
+    currentPostId = null;
+  });
+});
+
+// =====================================================
 // INITIALISE APP
+// =====================================================
 async function initialiseApp() {
   createErrorContainers();
+  initCategoryFilter();
   await restoreSession();
 }
 
-// DOM READY
 document.addEventListener("DOMContentLoaded", initialiseApp);
 
+// =====================================================
 // DEBUG HELPERS
+// =====================================================
 window.RentForum = {
   goToLogin,
   goToRegister,
   goToForum,
-  openForum,
   restoreSession,
   logoutUser,
+  loadFeed,
+  openPostDetail,
 };
