@@ -1,505 +1,304 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <!-- This tells the browser to use the actual device width and start at 1:1 scale -->
-    <title>RentForum | UK Rental Advice Community</title>
-    <link rel="stylesheet" href="style.css" id="theme-style" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
-  </head>
-  <body>
-    <a href="#forum-page" class="skip-link">Skip to main content</a>
-    <div aria-live="polite" aria-atomic="true" class="screen-reader"></div>
-    <!-- ======================================================= LOGIN PAGE ======================================================= -->
-    <section id="login-page" class="page active">
-      <div class="auth-container">
-        <div class="auth-left">
-          <h1>RentForum</h1>
-          <p class="subtitle">
-            Helping tenants and landlords across the UK discuss renting,
-            benefits, legal advice and housing in real time.
-          </p>
-          <form id="loginForm">
-            <label>Email or Nickname</label>
-            <input
-              type="text"
-              id="login-username"
-              placeholder="Enter email or nickname"
-              required
-            />
-            <label>Password</label>
-            <input
-              type="password"
-              id="login-password"
-              placeholder="Enter password"
-              required
-            />
-            <button type="submit" id="loginButton" class="primary-btn">
-              Login
-            </button>
-            <p class="switch-page">
-              Don't have an account?
-              <a href="#" id="show-register"> Register </a>
-            </p>
-          </form>
-        </div>
-        <div class="auth-right">
-          <div class="hero-text">
-            <h2>Find trusted rental advice.</h2>
-            <p>
-              Join discussions about renting, deposits, housing benefits, legal
-              rights and much more.
-            </p>
-          </div>
-        </div>
-      </div>
-    </section>
-    <!-- ======================================================= REGISTER PAGE ======================================================= -->
-    <section id="register-page" class="page hidden">
-      <div class="auth-container">
-        <div class="auth-left">
-          <h1>Create Account</h1>
-          <p class="subtitle">Become part of the RentForum community.</p>
-          <form id="registerForm">
-            <label>Nickname</label>
-            <input type="text" id="nickname" required />
-            <label>First Name</label>
-            <input type="text" id="first-name" required />
-            <label>Last Name</label>
-            <input type="text" id="last-name" required />
-            <label>Email</label>
-            <input type="email" id="email" required />
-            <label>Password</label>
-            <input type="password" id="password" required />
-            <label>Age</label>
-            <input type="number" id="age" min="16" required />
-            <label>Gender</label>
-            <select id="gender">
-              <option value="">Select</option>
-              <option>Female</option>
-              <option>Male</option>
-              <option>Non-binary</option>
-              <option>Prefer not to say</option>
-            </select>
-            <button type="submit" id="registerButton" class="primary-btn">
-              Create Account
-            </button>
-            <p class="switch-page">
-              Already have an account?
-              <a href="#" id="show-login"> Login </a>
-            </p>
-          </form>
-        </div>
-        <div class="auth-right">
-          <div class="hero-text">
-            <h2>Join thousands of UK renters.</h2>
-            <p>
-              Ask questions, help others and chat privately with members in real
-              time.
-            </p>
-          </div>
-        </div>
-      </div>
-    </section>
-    <!-- ======================================================= FORUM PAGE ======================================================= -->
-    <section id="forum-page" class="page hidden">
-      <header>
-        <div class="logo">🏠 RentForum</div>
-        <nav class="main-nav">
-          <a id="homeLink" href="#">Home</a>
-          <a id="categoriesLink" href="#">Categories</a>
-          <a id="messagesLink" href="#">Messages</a>
-          <a id="aboutLink" href="#">About</a>
-        </nav>
-        <div class="header-right">
-          <input
-            type="search"
-            id="searchInput"
-            placeholder="Search discussions..."
-            autocomplete="off"
-          />
-          <button id="themeToggleButton" aria-label="Toggle dark mode">
-            🌙
-          </button>
-          <button id="notificationButton" aria-label="Notifications">🔔</button>
-          <div class="profile">
-            <span id="username"> Guest </span>
-            <button id="logoutButton" class="secondary-btn">Logout</button>
-          </div>
-          <button
-            id="mobileMenuToggle"
-            class="mobile-menu-toggle"
-            aria-label="Toggle menu"
-          >
-            ☰
-          </button>
-        </div>
-      </header>
-      <div class="main-layout">
-        <!-- LEFT SIDEBAR -->
-        <aside class="sidebar">
-          <h3>Categories</h3>
-          <ul class="categories">
-            <li id="category-all" class="active-category">All Discussions</li>
-            <li id="category-england">England</li>
-            <li id="category-wales">Wales</li>
-            <li id="category-scotland">Scotland</li>
-            <li id="category-ni">N. Ireland</li>
-            <li id="category-benefits">Benefits</li>
-            <li id="category-legal">Legal Advice</li>
-            <li id="category-social">Social Housing</li>
-            <li id="category-private">Private Renting</li>
-          </ul>
-          <button id="new-post">+ New Discussion</button>
-        </aside>
-        <!-- ============================ MAIN DISCUSSION FEED ============================= -->
-        <main class="feed">
-          <section class="feed-header">
-            <div>
-              <h2>Recent Discussions</h2>
-              <p>
-                Browse the latest discussions from renters and landlords across
-                the UK.
-              </p>
-            </div>
-          </section>
-          <section class="discussion-list">
-            <article class="discussion-card">
-              <span class="category england"> England </span>
-              <h3>Can my landlord increase my rent during a fixed tenancy?</h3>
-              <div class="discussion-meta">
-                <span>Posted by Sarah</span>
-                <span>•</span>
-                <span>2 hours ago</span>
-              </div>
-              <p>
-                My landlord has informed me that my rent will increase next
-                month even though I'm still in a fixed-term tenancy. Is this
-                allowed?
-              </p>
-              <div class="discussion-footer">
-                <button class="like-btn" id="likeButton">👍</button>
-                <button class="comment-btn" data-post-id="1">💬 7</button>
-                <button class="read-btn" data-post-id="1">
-                  Read Discussion
-                </button>
-              </div>
-            </article>
-            <article class="discussion-card">
-              <span class="category legal"> Legal Advice </span>
-              <h3>Deposit still hasn't been returned after 30 days</h3>
-              <div class="discussion-meta">
-                <span>Posted by James</span>
-                <span>•</span>
-                <span>Yesterday</span>
-              </div>
-              <p>
-                My tenancy ended over a month ago. The landlord has stopped
-                replying to my emails. What are my options?
-              </p>
-              <div class="discussion-footer">
-                <button class="like-btn">👍 35</button>
-                <button class="comment-btn" data-post-id="1">💬 7</button>
-                <button class="read-btn" data-post-id="1">
-                  Read Discussion
-                </button>
-              </div>
-            </article>
-            <article class="discussion-card">
-              <span class="category benefits"> Benefits </span>
-              <h3>Can Universal Credit help with rent arrears?</h3>
-              <div class="discussion-meta">
-                <span>Posted by Emma</span>
-                <span>•</span>
-                <span>Today</span>
-              </div>
-              <p>
-                I've recently lost my job and I'm struggling to keep up with my
-                rent payments. Has anyone received support?
-              </p>
-              <div class="discussion-footer">
-                <button class="like-btn" data-post-id="1">👍 11</button>
-                <button class="comment-btn" data-post-id="1">💬 7</button>
-                <button class="read-btn" data-post-id="1">
-                  Read Discussion
-                </button>
-              </div>
-            </article>
-          </section>
-        </main>
-        <!-- ============================ RIGHT SIDEBAR ============================= -->
-        <aside class="chat-sidebar">
-          <div class="members-panel">
-            <h3>Online Members</h3>
-            <ul class="user-list" id="onlineList"></ul>
-            <h3>Offline</h3>
-            <ul class="user-list" id="offlineList"></ul>
-          </div>
-          <div class="chat-panel">
-            <div class="chat-header">
-              <h3>Private Messages</h3>
-              <span class="chat-status"> Connected </span>
-            </div>
-            <div class="chat-window" id="chatWindow"></div>
-            <form id="messageForm">
-              <input
-                type="text"
-                id="messageInput"
-                placeholder="Type a message..."
-                maxlength="500"
-                autocomplete="off"
-              />
-              <button type="submit" id="sendMessageButton" class="primary-btn">
-                Send
-              </button>
-            </form>
-          </div>
-        </aside>
-      </div>
-      <!-- ========================================== NOTIFICATION DROPDOWN ========================================== -->
-      <div id="notificationPanel" class="dropdown hidden">
-        <div class="dropdown-header">
-          <h3>Notifications</h3>
-        </div>
-        <ul class="notification-list" id="notificationList"></ul>
-      </div>
-      <!-- ========================================== PROFILE DROPDOWN ========================================== -->
-      <div id="profileDropdown" class="dropdown hidden">
-        <ul>
-          <li>👤 My Profile</li>
-          <li>⚙ Settings</li>
-          <li>🌙 Dark Mode</li>
-          <li id="logoutDropdown">🚪 Logout</li>
-        </ul>
-      </div>
-      <!-- ========================================== MOBILE MENU ========================================== -->
-      <nav id="mobileMenu" class="mobile-menu hidden">
-        <button class="mobile-link">🏠 Home</button>
-        <button class="mobile-link">📂 Categories</button>
-        <button class="mobile-link">💬 Messages</button>
-        <button class="mobile-link">🔔 Notifications</button>
-        <button class="mobile-link">👤 Profile</button>
-        <button class="mobile-link">🚪 Logout</button>
-      </nav>
-      <!-- ========================================== WEBSOCKET STATUS ========================================== -->
-      <div id="socketStatus" class="socket-status">🟢 Connected</div>
-      <!-- ========================================== ONLINE USER COUNT ========================================== -->
-      <div id="onlineCounter" class="online-counter">
-        Online Users: <strong>4</strong>
-      </div>
-      <!-- ========================================== SEARCH RESULTS ========================================== -->
-      <div id="searchResults" class="hidden">
-        <h3>Search Results</h3>
-        <div id="searchResultsList"></div>
-      </div>
-      <!-- ========================================== BACK TO TOP ========================================== -->
-      <button id="backToTop">↑</button>
-    </section>
-    <!-- ========================================== CREATE DISCUSSION MODAL ========================================== -->
-    <div id="createDiscussionModal" class="modal hidden">
-      <div class="modal-content">
-        <button class="close-modal">&times;</button>
-        <h2>Create New Discussion</h2>
-        <form id="discussionForm">
-          <label for="discussionTitle"> Title </label>
-          <input type="text" id="discussionTitle" maxlength="150" required />
-          <label for="discussionCategory"> Category </label>
-          <select id="discussionCategory">
-            <option>England</option>
-            <option>Wales</option>
-            <option>Scotland</option>
-            <option>N. Ireland</option>
-            <option>Benefits</option>
-            <option>Legal Advice</option>
-            <option>Social Housing</option>
-            <option>Private Renting</option>
-          </select>
-          <label for="discussionBody"> Discussion </label>
-          <textarea
-            id="discussionBody"
-            rows="8"
-            maxlength="5000"
-            placeholder="Describe your issue..."
-            required
-          ></textarea>
-          <button type="submit" id="createDiscussionButton" class="primary-btn">
-            Post Discussion
-          </button>
-        </form>
-      </div>
-    </div>
-    <!-- ========================================== VIEW DISCUSSION MODAL ========================================== -->
-    <div id="discussionModal" class="modal hidden">
-      <div class="modal-content large">
-        <button class="close-modal">&times;</button>
-        <span class="category england"> England </span>
-        <h2 id="discussionHeading">Can my landlord increase my rent?</h2>
-        <div class="discussion-meta">
-          <span>Posted by Sarah</span>
-          <span>•</span>
-          <span>2 hours ago</span>
-        </div>
-        <div class="discussion-content">
-          <p>
-            The full discussion will appear here when loaded from your Go
-            backend.
-          </p>
-        </div>
-        <hr />
-        <section class="comments">
-          <h3>Replies</h3>
-          <div id="commentsContainer">
-            <article class="comment">
-              <strong>James</strong>
-              <p>Check your tenancy agreement first.</p>
-              <small> 30 minutes ago </small>
-            </article>
-            <article class="comment">
-              <strong>Emma</strong>
-              <p>Citizens Advice has a useful guide.</p>
-              <small> 15 minutes ago </small>
-            </article>
-          </div>
-          <form id="commentForm">
-            <label for="commentText"> Write a reply </label>
-            <textarea id="commentText" rows="5" required></textarea>
-            <button type="submit" id="replyButton" class="primary-btn">
-              Post Reply
-            </button>
-          </form>
-        </section>
-      </div>
-    </div>
-    <!-- ========================================== LOADING SPINNER ========================================== -->
-    <div id="loadingOverlay" class="hidden">
-      <div class="spinner"></div>
-    </div>
-    <!-- ========================================== TOAST MESSAGE ========================================== -->
-    <div id="toast" class="hidden">Action completed successfully.</div>
-    <!-- ========================================== EMPTY STATES ========================================== -->
-    <section id="emptyPosts" class="empty-state hidden">
-      <span class="empty-icon">💬</span>
-      <h2>No discussions yet</h2>
-      <p>Be the first member to start a discussion.</p>
-      <button class="primary-btn">Create Discussion</button>
-    </section>
-    <section id="emptyMessages" class="empty-state hidden">
-      <span class="empty-icon">✉️</span>
-      <h2>No messages</h2>
-      <p>Start chatting with another member.</p>
-    </section>
-    <!-- ========================================== FOOTER ========================================== -->
-    <footer>
-      <div class="footer-content">
-        <div>
-          <h3>🏠 RentForum</h3>
-          <p>
-            A UK community where tenants and landlords can ask questions, share
-            experiences and receive advice in real time.
-          </p>
-        </div>
-        <div>
-          <h4>Categories</h4>
-          <ul>
-            <li>England</li>
-            <li>Wales</li>
-            <li>Scotland</li>
-            <li>N. Ireland</li>
-            <li>Benefits</li>
-            <li>Legal Advice</li>
-            <li>Social Housing</li>
-            <li>Private Renting</li>
-          </ul>
-        </div>
-        <div>
-          <h4>Community</h4>
-          <ul>
-            <li>Forum Rules</li>
-            <li>Privacy Policy</li>
-            <li>Terms of Use</li>
-            <li>Contact Us</li>
-          </ul>
-        </div>
-      </div>
-      <div class="copyright">© 2026 RentForum. All rights reserved.</div>
-    </footer>
-    <!-- ========================================== JavaScript ========================================== -->
-      <script src="app.js"></script>
-    <!-- ========================================== USER PROFILE MODAL ========================================== -->
-    <div id="profileModal" class="modal hidden">
-      <div class="modal-content">
-        <button class="close-modal">&times;</button>
-        <h2>My Profile</h2>
-        <div class="profile-card">
-          <div class="profile-avatar">👤</div>
-          <h3 id="profileName">Guest User</h3>
-          <p id="profileEmail">guest@email.com</p>
-          <div class="profile-stats">
-            <div>
-              <strong>12</strong>
-              <span>Posts</span>
-            </div>
-            <div>
-              <strong>34</strong>
-              <span>Comments</span>
-            </div>
-            <div>
-              <strong>5</strong>
-              <span>Likes</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <!-- ========================================== SETTINGS MODAL ========================================== -->
-    <div id="settingsModal" class="modal hidden">
-      <div class="modal-content">
-        <button class="close-modal">&times;</button>
-        <h2>Settings</h2>
-        <label> Theme </label>
-        <select id="themeSelect">
-          <option>Light</option>
-          <option>Dark</option>
-        </select>
-        <label> Notifications </label>
-        <input type="checkbox" checked />
-        <label> Show Online Status </label>
-        <input type="checkbox" checked />
-      </div>
-    </div>
-    <!-- ========================================== JAVASCRIPT TEMPLATES ========================================== -->
-    <template id="discussionTemplate">
-      <article class="discussion-card">
-        <span class="category"></span>
-        <h3></h3>
-        <div class="discussion-meta"></div>
-        <p class="discussion-preview"></p>
-        <div class="discussion-footer">
-          <button class="like-btn" data-post-id="1">👍 18</button>
-          <button class="comment-btn" data-post-id="1">💬 7</button>
-          <button class="read-btn" data-post-id="1">Read Discussion</button>
-        </div>
-      </article>
-    </template>
-    <template id="messageTemplate">
-      <div class="message received">
-        <span class="sender"></span>
-        <p></p>
-        <small></small>
-      </div>
-    </template>
-    <template id="commentTemplate">
-      <article class="comment">
-        <strong></strong>
-        <p></p>
-        <small></small>
-      </article>
-    </template>
-  </body>
+index.html.docx
+<li id="category-ni">N. Ireland</li>
+<li id="category-benefits">Benefits</li>
+<li id="category-legal">Legal Advice</li>
+<li id="category-social">Social Housing</li>
+<li id="category-private">Private Renting</li>
+</ul>
+<button id="new-post">+ New Discussion</button>
+</aside>
+<!-- MAIN DISCUSSION FEED -->
+<main class="feed">
+<section class="feed-header">
+<div>
+<h2>Recent Discussions</h2>
+<p>
+Browse the latest discussions from renters and landlords across
+the UK.
+</p>
+</div>
+</section>
+<!-- Posts rendered here by app.js -->
+<section class="discussion-list" id="discussionList"></section>
+</main>
+<!-- RIGHT SIDEBAR -->
+<aside class="chat-sidebar">
+index.html.docx
+<div class="members-panel">
+<h3>Online Members</h3>
+<ul class="user-list" id="onlineList"></ul>
+<h3>Offline</h3>
+<ul class="user-list" id="offlineList"></ul>
+</div>
+<div class="chat-panel">
+<div class="chat-header">
+<h3>Private Messages</h3>
+<span class="chat-status">Connected</span>
+</div>
+<div class="chat-window" id="chatWindow"></div>
+<form id="messageForm">
+<input
+type="text"
+id="messageInput"
+placeholder="Type a message..."
+maxlength="500"
+autocomplete="off"
+/>
+<button type="submit" id="sendMessageButton" class="primary-btn">
+Send
+</button>
+</form>
+</div>
+</aside>
+index.html.docx
+</div>
+<!-- NOTIFICATION DROPDOWN -->
+<div id="notificationPanel" class="dropdown hidden">
+<div class="dropdown-header">
+<h3>Notifications</h3>
+</div>
+<ul class="notification-list" id="notificationList"></ul>
+</div>
+<!-- PROFILE DROPDOWN -->
+<div id="profileDropdown" class="dropdown hidden">
+<ul>
+<li>
+My Profile</li>
+<li> Settings</li>
+⚙
+<li>
+Dark Mode</li>
+<li id="logoutDropdown">
+Logout</li>
+</ul>
+</div>
+<!-- MOBILE MENU -->
+<nav id="mobileMenu" class="mobile-menu hidden">
+<button class="mobile-link"> Home</button>
+<button class="mobile-link">
+Categories</button>
+<button class="mobile-link">
+Messages</button>
+index.html.docx
+<button class="mobile-link">
+Notifications</button>
+<button class="mobile-link">
+Profile</button>
+<button class="mobile-link">
+Logout</button>
+</nav>
+<!-- SOCKET STATUS -->
+<div id="socketStatus" class="socket-status">
+Connected</div>
+<!-- ONLINE USER COUNT -->
+<div id="onlineCounter" class="online-counter">
+Online Users: <strong>0</strong>
+</div>
+<!-- SEARCH RESULTS -->
+<div id="searchResults" class="hidden">
+<h3>Search Results</h3>
+<div id="searchResultsList"></div>
+</div>
+<!-- BACK TO TOP -->
+<button id="backToTop">↑</button>
+</section>
+<!-- ========================================== CREATE DISCUSSION MODAL
+========================================== -->
+index.html.docx
+<div id="createDiscussionModal" class="modal hidden">
+<div class="modal-content">
+<button class="close-modal">&times;</button>
+<h2>Create New Discussion</h2>
+<form id="discussionForm">
+<label for="discussionTitle">Title</label>
+<input type="text" id="discussionTitle" maxlength="150" required />
+<label for="discussionCategory">Category</label>
+<select id="discussionCategory">
+<option>England</option>
+<option>Wales</option>
+<option>Scotland</option>
+<option>N. Ireland</option>
+<option>Benefits</option>
+<option>Legal Advice</option>
+<option>Social Housing</option>
+<option>Private Renting</option>
+</select>
+<label for="discussionBody">Discussion</label>
+<textarea
+id="discussionBody"
+rows="8"
+maxlength="5000"
+placeholder="Describe your issue or share your experience..."
+required
+></textarea>
+index.html.docx
+<button type="submit" id="createDiscussionButton" class="primary-btn">
+Post Discussion
+</button>
+</form>
+</div>
+</div>
+<!-- ========================================== VIEW DISCUSSION MODAL
+========================================== -->
+<div id="discussionModal" class="modal hidden">
+<div class="modal-content large">
+<button class="close-modal">&times;</button>
+<span class="category england"></span>
+<h2 id="discussionHeading"></h2>
+<div class="discussion-meta"></div>
+<div class="discussion-content">
+<p></p>
+</div>
+<hr />
+<section class="comments">
+<h3>Replies</h3>
+<!-- Comments rendered here by app.js -->
+<div id="commentsContainer"></div>
+<form id="commentForm">
+<label for="commentText">Write a reply</label>
+<textarea id="commentText" rows="5" required></textarea>
+index.html.docx
+<button type="submit" id="replyButton" class="primary-btn">
+Post Reply
+</button>
+</form>
+</section>
+</div>
+</div>
+<!-- ========================================== LOADING SPINNER
+========================================== -->
+<div id="loadingOverlay" class="hidden">
+<div class="spinner"></div>
+</div>
+<!-- ========================================== TOAST MESSAGE
+========================================== -->
+<div id="toast" class="hidden">Action completed successfully.</div>
+<!-- ========================================== EMPTY STATES
+========================================== -->
+<section id="emptyPosts" class="empty-state hidden">
+<span class="empty-icon">
+</span>
+<h2>No discussions yet</h2>
+<p>Be the first member to start a discussion.</p>
+<button class="primary-btn">Create Discussion</button>
+</section>
+index.html.docx
+<section id="emptyMessages" class="empty-state hidden">
+<span class="empty-icon"></span>
+✉️
+<h2>No messages</h2>
+<p>Start chatting with another member.</p>
+</section>
+<!-- ========================================== FOOTER
+========================================== -->
+<footer>
+<div class="footer-content">
+<div>
+<h3> RentForum</h3>
+<p>
+A UK community where tenants and landlords can ask questions, share
+experiences and receive advice in real time.
+</p>
+</div>
+<div>
+<h4>Categories</h4>
+<ul>
+<li>England</li>
+<li>Wales</li>
+<li>Scotland</li>
+<li>N. Ireland</li>
+<li>Benefits</li>
+<li>Legal Advice</li>
+index.html.docx
+<li>Social Housing</li>
+<li>Private Renting</li>
+</ul>
+</div>
+<div>
+<h4>Community</h4>
+<ul>
+<li>Forum Rules</li>
+<li>Privacy Policy</li>
+<li>Terms of Use</li>
+<li>Contact Us</li>
+</ul>
+</div>
+</div>
+<div class="copyright">© 2026 RentForum. All rights reserved.</div>
+</footer>
+<!-- ========================================== USER PROFILE MODAL
+========================================== -->
+<div id="profileModal" class="modal hidden">
+<div class="modal-content">
+<button class="close-modal">&times;</button>
+<h2>My Profile</h2>
+<div class="profile-card">
+<div class="profile-avatar">
+</div>
+<h3 id="profileName">Guest User</h3>
+index.html.docx
+<p
+id="profileEmail">guest@email.com</p
+>
+<div class="profile-stats">
+<div><strong>0</strong><span>Posts</span></div>
+<div><strong>0</strong><span>Comments</span></div>
+<div><strong>0</strong><span>Likes</span></div>
+</div>
+</div>
+</div>
+</div>
+<!-- ========================================== SETTINGS MODAL
+========================================== -->
+<div id="settingsModal" class="modal hidden">
+<div class="modal-content">
+<button class="close-modal">&times;</button>
+<h2>Settings</h2>
+<label>Theme</label>
+<select id="themeSelect">
+<option>Light</option>
+<option>Dark</option>
+</select>
+<label>Notifications</label>
+<input type="checkbox" checked />
+<label>Show Online Status</label>
+<input type="checkbox" checked />
+</div>
+index.html.docx
+</div>
+<!-- ========================================== JAVASCRIPT TEMPLATES
+========================================== -->
+<template id="discussionTemplate">
+<article class="discussion-card">
+<span class="category"></span>
+<h3></h3>
+<div class="discussion-meta"></div>
+<p class="discussion-preview"></p>
+<div class="discussion-footer">
+<button class="like-btn">
+</button>
+<button class="comment-btn">
+0</button>
+<button class="read-btn">Read Discussion</button>
+</div>
+</article>
+</template>
+<template id="messageTemplate">
+<div class="message received">
+<span class="sender"></span>
+<p></p>
+<small></small>
+</div>
+</template>
+index.html.docx
+<template id="commentTemplate">
+<article class="comment">
+<strong></strong>
+<p></p>
+<small></small>
+</article>
+</template>
+<!-- JAVASCRIPT -->
+<script src="app.js"></script>
+</body>
 </html>
