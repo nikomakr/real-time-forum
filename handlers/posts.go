@@ -2,10 +2,12 @@ package handlers
 
 import (
 	"database/sql"
+	"encoding/json"
 	"errors"
 	"log"
 	"net/http"
 	"path"
+	"strings"
 
 	"real-time-forum/db"
 	"real-time-forum/utils"
@@ -185,5 +187,109 @@ func GetPosts(w http.ResponseWriter, r *http.Request) {
 
 	if err := utils.WriteJSON(w, http.StatusOK, posts); err != nil {
 		log.Printf("[ERROR] [GetPosts Response JSON]: %v", err)
+	}
+}
+
+type createPostPayload struct {
+	Title      string   `json:"title"`
+	Content    string   `json:"content"`
+	Categories []string `json:"categories"`
+}
+
+func CreatePost(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		utils.WriteError(w, http.StatusMethodNotAllowed, "method not allowed")
+		return
+	}
+
+	r.Body = http.MaxBytesReader(w, r.Body, 1024*1024)
+	defer r.Body.Close()
+
+	var payload createPostPayload
+	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+		var maxBytesErr *http.MaxBytesError
+		if errors.As(err, &maxBytesErr) {
+			utils.WriteError(w, http.StatusRequestEntityTooLarge, "request body too large")
+			return
+		}
+		utils.WriteError(w, http.StatusBadRequest, "invalid request body")
+		return
+	}
+
+	payload.Title = strings.TrimSpace(payload.Title)
+	payload.Content = strings.TrimSpace(payload.Content)
+
+	if payload.Title == "" {
+		utils.WriteError(w, http.StatusBadRequest, "title is required")
+		return
+	}
+	if payload.Content == "" {
+		utils.WriteError(w, http.StatusBadRequest, "content is required")
+		return
+	}
+	if len(payload.Categories) == 0 {
+		utils.WriteError(w, http.StatusBadRequest, "at least one category is required")
+		return
+	}
+
+	// Get authenticated user ID from context
+	authorID := GetUserID(r)
+	if authorID == "" {
+		utils.WriteError(w, http.StatusUnauthorized, "authentication required")
+		return
+	}
+
+	postID, err := utils.NewUUID()
+	if err != nil {
+		utils.WriteError(w, http.StatusInternalServerError, "could not generate post ID")
+		return
+	}
+
+	// Insert post and categories atomically
+	tx, err := db.DB.Begin()
+	if err != nil {
+		log.Printf("[ERROR] [CreatePost Begin TX]: %v", err)
+		utils.WriteError(w, http.StatusInternalServerError, "could not create post")
+		return
+	}
+
+	_, err = tx.Exec(
+		`INSERT INTO posts (id, author_id, title, content) VALUES (?, ?, ?, ?)`,
+		postID, authorID, payload.Title, payload.Content,
+	)
+	if err != nil {
+		tx.Rollback()
+		log.Printf("[ERROR] [CreatePost Insert Post]: %v", err)
+		utils.WriteError(w, http.StatusInternalServerError, "could not create post")
+		return
+	}
+
+	for _, categoryID := range payload.Categories {
+		if strings.TrimSpace(categoryID) == "" {
+			continue
+		}
+		_, err = tx.Exec(
+			`INSERT INTO post_categories (post_id, category_id) VALUES (?, ?)`,
+			postID, strings.TrimSpace(categoryID),
+		)
+		if err != nil {
+			tx.Rollback()
+			log.Printf("[ERROR] [CreatePost Insert Category]: %v", err)
+			utils.WriteError(w, http.StatusBadRequest, "invalid category")
+			return
+		}
+	}
+
+	if err := tx.Commit(); err != nil {
+		log.Printf("[ERROR] [CreatePost Commit TX]: %v", err)
+		utils.WriteError(w, http.StatusInternalServerError, "could not create post")
+		return
+	}
+
+	if err := utils.WriteJSON(w, http.StatusCreated, map[string]string{
+		"message": "post created successfully",
+		"id":      postID,
+	}); err != nil {
+		log.Printf("[ERROR] [CreatePost Response JSON]: %v", err)
 	}
 }
