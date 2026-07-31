@@ -380,12 +380,20 @@ function formatDate(dateStr) {
   });
 }
 
-function slugify(category) {
-  if (!category) return "";
-  return category
+function slugify(str) {
+  if (!str) return "";
+  return str
     .toLowerCase()
     .replace(/\s+/g, "-")
     .replace(/[^a-z0-9-]/g, "");
+}
+
+function splitAndTrim(str, sep) {
+  if (!str) return [];
+  return str
+    .split(sep)
+    .map((s) => s.trim())
+    .filter((s) => s !== "");
 }
 
 // =====================================================
@@ -408,7 +416,6 @@ function initCategoryFilter() {
     const el = document.getElementById(id);
     if (!el) return;
     el.addEventListener("click", () => {
-      // Update active state
       document.querySelectorAll(".categories li").forEach((li) => {
         li.classList.remove("active-category");
       });
@@ -465,13 +472,20 @@ function renderFeed(posts) {
 
 // =====================================================
 // POST CARD COMPONENT
+// FIX: backend returns post.categories (array), not post.category (string)
 // =====================================================
 function buildPostCard(post) {
   const template = discussionTemplate.content.cloneNode(true);
 
+  // Use first category for badge display — backend returns array
+  const firstCategory =
+    Array.isArray(post.categories) && post.categories.length > 0
+      ? post.categories[0]
+      : "";
+
   const categoryEl = template.querySelector(".category");
-  categoryEl.textContent = post.category || "";
-  categoryEl.className = `category ${slugify(post.category)}`;
+  categoryEl.textContent = firstCategory;
+  categoryEl.className = `category ${slugify(firstCategory)}`;
 
   template.querySelector("h3").textContent = post.title || "";
 
@@ -502,6 +516,7 @@ function buildPostCard(post) {
 
 // =====================================================
 // POST DETAIL VIEW
+// FIX: backend returns post.categories (array), not post.category (string)
 // =====================================================
 async function openPostDetail(postId) {
   currentPostId = postId;
@@ -530,9 +545,15 @@ async function openPostDetail(postId) {
 }
 
 function renderPostDetail(post) {
+  // Use first category for badge — backend returns array
+  const firstCategory =
+    Array.isArray(post.categories) && post.categories.length > 0
+      ? post.categories[0]
+      : "";
+
   const categoryEl = discussionModal.querySelector(".category");
-  categoryEl.textContent = post.category || "";
-  categoryEl.className = `category ${slugify(post.category)}`;
+  categoryEl.textContent = firstCategory;
+  categoryEl.className = `category ${slugify(firstCategory)}`;
 
   document.getElementById("discussionHeading").textContent = post.title || "";
 
@@ -614,6 +635,8 @@ if (commentForm) {
 
 // =====================================================
 // CREATE POST VIEW
+// FIX: backend expects categories as array of IDs, not a single category name
+// The select value is the category ID — see index.html option values
 // =====================================================
 function openCreatePost() {
   if (createDiscussionModal) {
@@ -636,11 +659,16 @@ async function submitPost(event) {
   const bodyEl = document.getElementById("discussionBody");
 
   const title = titleEl ? titleEl.value.trim() : "";
-  const category = categoryEl ? categoryEl.value : "";
+  // category value is now the category ID from the select option value
+  const categoryId = categoryEl ? categoryEl.value : "";
   const content = bodyEl ? bodyEl.value.trim() : "";
 
   if (!title) {
     alert("Please enter a title.");
+    return;
+  }
+  if (!categoryId) {
+    alert("Please select a category.");
     return;
   }
   if (!content) {
@@ -653,11 +681,17 @@ async function submitPost(event) {
       method: "POST",
       credentials: "include",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title, category, content }),
+      // categories must be an array of category IDs
+      body: JSON.stringify({ title, content, categories: [categoryId] }),
     });
 
     if (!response.ok) {
-      alert("Could not create discussion.");
+      let errorMessage = "Could not create discussion.";
+      try {
+        const error = await response.json();
+        errorMessage = error.error || error.message || errorMessage;
+      } catch (_) {}
+      alert(errorMessage);
       return;
     }
 
