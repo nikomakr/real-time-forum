@@ -189,6 +189,7 @@ func GetPosts(w http.ResponseWriter, r *http.Request) {
 		log.Printf("[ERROR] [GetPosts Response JSON]: %v", err)
 	}
 }
+
 type createPostPayload struct {
 	Title      string   `json:"title"`
 	Content    string   `json:"content"`

@@ -34,11 +34,11 @@ func Logout(w http.ResponseWriter, r *http.Request) {
 	// We cannot force a browser to "delete" a cookie directly. Instead, we overwrite it with an expired, empty version!
 	http.SetCookie(w, &http.Cookie{
 		Name:     "session_id",
-		Value:    "", // Clear the cookie value aka insert an empty string
+		Value:    "",              // Clear the cookie value aka insert an empty string
 		Expires:  time.Unix(0, 0), // Expires: time.Unix(0, 0) & MaxAge: -1: Forces the browser to immediately delete the cookie because its expiration date is set to January 1, 1970.
 		MaxAge:   -1,
-		HttpOnly: true, // Prevents JavaScript access to the cookie, mitigating XSS attacks
-		Secure:   true, // Ensures the cookie is only sent over HTTPS, protecting it from being intercepted in transit
+		HttpOnly: true,                    // Prevents JavaScript access to the cookie, mitigating XSS attacks
+		Secure:   true,                    // Ensures the cookie is only sent over HTTPS, protecting it from being intercepted in transit
 		SameSite: http.SameSiteStrictMode, // Prevents the cookie from being sent in cross-site requests, mitigating CSRF attacks
 		Path:     "/",
 	})
