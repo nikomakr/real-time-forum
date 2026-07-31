@@ -19,14 +19,18 @@ func main() {
 	http.HandleFunc("/api/posts/", handlers.RequireAuth(handlers.GetPost))
 
 	// The following endpoint is protected by the RequireAuth middleware, which checks for a valid session cookie and ensures the user is authenticated before allowing access to the /api/me endpoint. If the user is authenticated, their user ID is returned in the response.
-http.HandleFunc("/api/posts", handlers.RequireAuth(func(w http.ResponseWriter, r *http.Request) {
-	if r.Method == http.MethodGet {
-		handlers.GetPosts(w, r)
-	} else if r.Method == http.MethodPost {
-		handlers.CreatePost(w, r)
-	} else {
-		utils.WriteError(w, http.StatusMethodNotAllowed, "method not allowed")
-	}
+http.HandleFunc("/api/posts/", handlers.RequireAuth(func(w http.ResponseWriter, r *http.Request) {
+    if strings.HasSuffix(r.URL.Path, "/comments") {
+        if r.Method == http.MethodGet {
+            handlers.GetComments(w, r)
+        } else if r.Method == http.MethodPost {
+            handlers.CreateComment(w, r)
+        } else {
+            utils.WriteError(w, http.StatusMethodNotAllowed, "method not allowed")
+        }
+    } else {
+        handlers.GetPost(w, r)
+    }
 }))
 
 	log.Println("server listening on :8080")
