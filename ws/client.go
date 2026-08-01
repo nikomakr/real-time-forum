@@ -60,7 +60,7 @@ func buildPresenceMessage(ids []string) []byte {
 }
 
 // ReadPump pumps messages from the WebSocket connection to the hub
-func (c *Client) ReadPump(conn *websocket.Conn) {
+func (c *Client) ReadPump(conn *websocket.Conn, onMessage func([]byte)) {
 	defer func() {
 		c.Hub.Unregister(c)
 		conn.Close()
@@ -74,7 +74,7 @@ func (c *Client) ReadPump(conn *websocket.Conn) {
 	})
 
 	for {
-		_, _, err := conn.ReadMessage()
+		_, message, err := conn.ReadMessage()
 		if err != nil {
 			if websocket.IsUnexpectedCloseError(
 				err,
@@ -85,8 +85,9 @@ func (c *Client) ReadPump(conn *websocket.Conn) {
 			}
 			break
 		}
-		// Incoming messages from clients are handled by the handler
-		// The client does not send messages directly through the pump
+		if onMessage != nil {
+			go onMessage(message)
+		}
 	}
 }
 
