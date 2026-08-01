@@ -53,6 +53,8 @@ func main() {
 		}
 	}))
 
+	http.HandleFunc("/api/messages/{id}", handlers.RequireAuth(handlers.GetMessages))
+
 	// WebSocket endpoint — authenticated
 	http.HandleFunc("/ws", handlers.RequireAuth(func(w http.ResponseWriter, r *http.Request) {
 		handlers.ServeWS(hub, w, r)
