@@ -8,10 +8,13 @@ import (
 	"real-time-forum/db"
 	"real-time-forum/handlers"
 	"real-time-forum/utils"
+	"real-time-forum/ws"
 )
 
 func main() {
 	db.Init("./forum.db")
+
+	hub := ws.NewHub()
 
 	http.Handle("/", http.FileServer(http.Dir("./static")))
 
@@ -48,6 +51,14 @@ func main() {
 		} else {
 			handlers.GetPost(w, r)
 		}
+	}))
+
+	http.HandleFunc("/api/messages/{id}", handlers.RequireAuth(handlers.GetMessages))
+	http.HandleFunc("/api/users", handlers.RequireAuth(handlers.GetUsers(hub)))
+
+	// WebSocket endpoint — authenticated
+	http.HandleFunc("/ws", handlers.RequireAuth(func(w http.ResponseWriter, r *http.Request) {
+		handlers.ServeWS(hub, w, r)
 	}))
 
 	log.Println("server listening on :8080")
