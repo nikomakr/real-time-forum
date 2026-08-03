@@ -1757,3 +1757,42 @@ footer {
   width: auto;
   transform: scale(1.2);
 }
+/* ========================================================== MEMBERS PANEL HEADINGS ========================================================== */
+.members-panel h2 {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #9ca3af;
+  margin-bottom: 8px;
+  margin-top: 16px;
+}
+
+.members-panel h2:first-child {
+  margin-top: 0;
+}
+
+/* ========================================================== USER LIST EMPTY STATE ========================================================== */
+.user-list-empty {
+  font-size: 13px;
+  color: #9ca3af;
+  padding: 8px 12px;
+  list-style: none;
+  font-style: italic;
+}
+
+/* ========================================================== ONLINE COUNTER POSITION ========================================================== */
+.online-counter {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #374151;
+  z-index: 100;
+  box-shadow: 0 2px 8px rgba(0,0,0,.08);
+}

@@ -944,19 +944,40 @@ function renderUserLists(users) {
   onlineList.innerHTML = "";
   offlineList.innerHTML = "";
 
-  let onlineCount = 0;
+  const onlineUsers = users.filter((u) => u.is_online);
+  const offlineUsers = users.filter((u) => !u.is_online);
 
-  users.forEach((user) => {
-    const li = buildUserListItem(user);
-    if (user.is_online) {
-      onlineList.appendChild(li);
-      onlineCount++;
-    } else {
-      offlineList.appendChild(li);
-    }
-  });
+  // Update panel headings with live counts
+  const onlineHeading = onlineList.previousElementSibling;
+  const offlineHeading = offlineList.previousElementSibling;
+  if (onlineHeading)
+    onlineHeading.textContent = `Online Members (${onlineUsers.length})`;
+  if (offlineHeading)
+    offlineHeading.textContent = `Offline (${offlineUsers.length})`;
 
-  updateOnlineCounter(onlineCount);
+  if (onlineUsers.length === 0) {
+    const li = document.createElement("li");
+    li.className = "user-list-empty";
+    li.textContent = "No members online";
+    onlineList.appendChild(li);
+  } else {
+    onlineUsers.forEach((user) =>
+      onlineList.appendChild(buildUserListItem(user)),
+    );
+  }
+
+  if (offlineUsers.length === 0) {
+    const li = document.createElement("li");
+    li.className = "user-list-empty";
+    li.textContent = "No offline members";
+    offlineList.appendChild(li);
+  } else {
+    offlineUsers.forEach((user) =>
+      offlineList.appendChild(buildUserListItem(user)),
+    );
+  }
+
+  updateOnlineCounter(onlineUsers.length);
 }
 
 function buildUserListItem(user) {
