@@ -3,14 +3,18 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>RentForum | UK Renters Community</title>
+    <title>RentForum | UK Rental Advice Community</title>
     <link rel="stylesheet" href="style.css" id="theme-style" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
   </head>
   <body>
-    <!-- ======================== SVG SPRITE — define all icons once here, reference anywhere with <use href="#id"> ========================= -->
+
+    <!-- SVG SPRITE -->
     <svg xmlns="http://www.w3.org/2000/svg" class="screen-reader" aria-hidden="true" focusable="false">
       <defs>
         <symbol id="icon-home" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -76,42 +80,24 @@
         </symbol>
       </defs>
     </svg>
+
     <!-- ACCESSIBILITY -->
     <a href="#main-content" class="skip-link">Skip to main content</a>
     <div aria-live="polite" aria-atomic="true" class="screen-reader"></div>
-    <!-- ======================================================= LOGIN PAGE ======================================================= -->
+
+    <!-- LOGIN PAGE -->
     <section id="login-page" class="page active" aria-labelledby="login-heading">
       <div class="auth-container">
         <div class="auth-left">
           <h1 id="login-heading">RentForum</h1>
-          <p class="subtitle">
-            Helping tenants and landlords across the UK discuss renting,
-            benefits, legal advice and housing in real time.
-          </p>
+          <p class="subtitle">Helping tenants and landlords across the UK discuss renting, benefits, legal advice and housing in real time.</p>
           <form id="loginForm" action="#" method="post" novalidate>
             <label for="login-username">Email or Nickname</label>
-            <input
-              type="text"
-              id="login-username"
-              name="identifier"
-              placeholder="Enter email or nickname"
-              autocomplete="username"
-              required
-            />
+            <input type="text" id="login-username" name="identifier" placeholder="Enter email or nickname" autocomplete="username" required />
             <label for="login-password">Password</label>
-            <input
-              type="password"
-              id="login-password"
-              name="password"
-              placeholder="Enter password"
-              autocomplete="current-password"
-              required
-            />
+            <input type="password" id="login-password" name="password" placeholder="Enter password" autocomplete="current-password" required />
             <button type="submit" id="loginButton" class="primary-btn">Login</button>
-            <p class="switch-page">
-              Don't have an account?
-              <a href="#" id="show-register">Register</a>
-            </p>
+            <p class="switch-page">Don't have an account? <a href="#" id="show-register">Register</a></p>
           </form>
         </div>
         <div class="auth-right" aria-hidden="true">
@@ -122,7 +108,8 @@
         </div>
       </div>
     </section>
-    <!-- ======================================================= REGISTER PAGE ======================================================= -->
+
+    <!-- REGISTER PAGE -->
     <section id="register-page" class="page hidden" aria-labelledby="register-heading">
       <div class="auth-container">
         <div class="auth-left">
@@ -150,10 +137,7 @@
               <option value="Prefer not to say">Prefer not to say</option>
             </select>
             <button type="submit" id="registerButton" class="primary-btn">Create Account</button>
-            <p class="switch-page">
-              Already have an account?
-              <a href="#" id="show-login">Login</a>
-            </p>
+            <p class="switch-page">Already have an account? <a href="#" id="show-login">Login</a></p>
           </form>
         </div>
         <div class="auth-right" aria-hidden="true">
@@ -164,8 +148,10 @@
         </div>
       </div>
     </section>
-    <!-- ======================================================= FORUM PAGE ======================================================= -->
+
+    <!-- FORUM PAGE -->
     <section id="forum-page" class="page hidden">
+
       <header role="banner">
         <div class="logo" aria-label="RentForum home">
           <svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-home"/></svg>
@@ -198,17 +184,26 @@
           </button>
         </div>
       </header>
+
       <div class="main-layout">
+
+        <!-- LEFT SIDEBAR — categories loaded from API -->
         <aside class="sidebar" aria-label="Discussion categories">
           <h2>Categories</h2>
-          <div class="category-tiles" id="categoryTiles" role="list">
-            <div class="category-tile active-category" id="category-all" role="listitem" tabindex="0">All Discussions</div>
+          <div class="category-tiles" id="categoryTiles">
+            <!-- All Discussions tile is always present -->
+            <div class="category-tile active-category" id="category-all" role="button" tabindex="0" aria-label="All Discussions">
+              All Discussions
+            </div>
+            <!-- Group tiles injected here by app.js from GET /api/categories -->
           </div>
           <button type="button" id="new-post" class="primary-btn">
             <svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-plus"/></svg>
             New Discussion
           </button>
         </aside>
+
+        <!-- MAIN FEED -->
         <main id="main-content" class="feed">
           <div class="feed-header">
             <h2>Recent Discussions</h2>
@@ -216,34 +211,52 @@
           </div>
           <section class="discussion-list" id="discussionList" aria-label="Discussion feed" aria-live="polite"></section>
         </main>
+
+        <!-- RIGHT SIDEBAR — members and chat -->
         <aside class="chat-sidebar" aria-label="Online members and private chat">
+
           <div class="members-panel">
             <h2>Online Members</h2>
+            <!-- User rows injected here by app.js from GET /api/users -->
             <ul class="user-list" id="onlineList" aria-label="Online members"></ul>
             <h2>Offline</h2>
             <ul class="user-list" id="offlineList" aria-label="Offline members"></ul>
           </div>
+
           <div class="chat-panel">
             <div class="chat-header">
-              <h2>Private Messages</h2>
-              <span class="chat-status" aria-live="polite">Connected</span>
+              <!-- id="chatHeading" lets app.js update it with the selected user's name -->
+              <h2 id="chatHeading">Private Messages</h2>
+              <span class="chat-status" id="socketStatus" role="status" aria-live="polite">
+                <svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-dot"/></svg>
+                Connected
+              </span>
             </div>
-            <div class="chat-window" id="chatWindow" role="log" aria-label="Chat messages" aria-live="polite"></div>
+            <!-- Messages rendered here by app.js -->
+            <div class="chat-window" id="chatWindow" role="log" aria-label="Chat messages" aria-live="polite">
+              <p class="no-results">Select a member to start chatting.</p>
+            </div>
             <form id="messageForm" action="#" method="post" novalidate aria-label="Send a message">
               <label for="messageInput" class="screen-reader">Type a message</label>
-              <input type="text" id="messageInput" placeholder="Type a message..." maxlength="500" autocomplete="off" />
-              <button type="submit" id="sendMessageButton" aria-label="Send message">
+              <!-- disabled until a conversation is opened -->
+              <input type="text" id="messageInput" placeholder="Select a user to chat..." maxlength="500" autocomplete="off" disabled />
+              <button type="submit" id="sendMessageButton" aria-label="Send message" disabled>
                 <svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-send"/></svg>
               </button>
             </form>
           </div>
+
         </aside>
 
       </div>
+
+      <!-- NOTIFICATION DROPDOWN -->
       <div id="notificationPanel" class="dropdown hidden" role="dialog" aria-label="Notifications" aria-modal="false">
         <div class="dropdown-header"><h3>Notifications</h3></div>
         <ul class="notification-list" id="notificationList"></ul>
       </div>
+
+      <!-- PROFILE DROPDOWN -->
       <div id="profileDropdown" class="dropdown hidden" role="dialog" aria-label="Profile menu" aria-modal="false">
         <ul>
           <li><button type="button"><svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-user"/></svg> My Profile</button></li>
@@ -253,6 +266,7 @@
         </ul>
       </div>
 
+      <!-- MOBILE MENU -->
       <nav id="mobileMenu" class="mobile-menu hidden" aria-label="Mobile navigation">
         <button type="button" class="mobile-link"><svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-home"/></svg> Home</button>
         <button type="button" class="mobile-link"><svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-folder"/></svg> Categories</button>
@@ -262,30 +276,29 @@
         <button type="button" class="mobile-link"><svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-logout"/></svg> Logout</button>
       </nav>
 
-      <div id="socketStatus" class="socket-status" role="status" aria-live="polite">
-        <svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-dot"/></svg>
-        Connected
-      </div>
-
+      <!-- ONLINE USER COUNT -->
       <div id="onlineCounter" class="online-counter" aria-live="polite">Online: <strong>0</strong></div>
 
+      <!-- SEARCH RESULTS -->
       <div id="searchResults" class="hidden" role="region" aria-label="Search results" aria-live="polite">
         <h3>Search Results</h3>
         <div id="searchResultsList"></div>
       </div>
 
+      <!-- BACK TO TOP -->
       <button type="button" id="backToTop" aria-label="Back to top">
         <svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-chevron-up"/></svg>
       </button>
+
     </section>
 
-    <!-- ======================================================= FOOTER ======================================================= -->
+    <!-- FOOTER -->
     <footer role="contentinfo">
       <div class="footer-brand">
         <svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-home"/></svg>
         RentForum
       </div>
-      <nav class="footer-links" aria-label="Footer links">
+      <nav class="footer-links" aria-label="Footer navigation">
         <a href="#">Forum Rules</a>
         <a href="#">Privacy Policy</a>
         <a href="#">Terms of Use</a>
@@ -360,6 +373,7 @@
         </form>
       </div>
     </div>
+
     <!-- VIEW DISCUSSION MODAL -->
     <div id="discussionModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="discussionHeading">
       <div class="modal-content large">
@@ -382,22 +396,27 @@
         </section>
       </div>
     </div>
-    <!-- CATEGORY PICKER MODAL -->
+
+    <!-- CATEGORY PICKER MODAL — Epic 8 / dynamic categories -->
     <div id="categoryPickerModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="categoryPickerHeading">
       <div class="modal-content">
         <button type="button" class="close-modal" aria-label="Close">
           <svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-x"/></svg>
         </button>
-        <h2 id="categoryPickerHeading">Choose a category</h2>
+        <h2 id="categoryPickerHeading">Select Category</h2>
+        <!-- Category items injected here by app.js -->
         <ul class="category-picker-list" id="categoryPickerList" role="list"></ul>
       </div>
     </div>
+
     <!-- LOADING SPINNER -->
     <div id="loadingOverlay" class="hidden" role="status" aria-label="Loading">
       <div class="spinner"></div>
     </div>
+
     <!-- TOAST MESSAGE -->
     <div id="toast" class="hidden" role="status" aria-live="polite">Action completed successfully.</div>
+
     <!-- EMPTY STATES -->
     <div id="emptyPosts" class="empty-state hidden">
       <svg class="empty-icon" aria-hidden="true" focusable="false"><use href="#icon-message-square"/></svg>
@@ -432,6 +451,7 @@
         </div>
       </div>
     </div>
+
     <!-- SETTINGS MODAL -->
     <div id="settingsModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="settingsModalHeading">
       <div class="modal-content">
@@ -468,12 +488,12 @@
           </button>
           <button type="button" class="comment-btn" aria-label="View comments">
             <svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-message-square"/></svg>
-            0
           </button>
           <button type="button" class="read-btn">Read Discussion</button>
         </div>
       </article>
     </template>
+
     <template id="messageTemplate">
       <div class="message received">
         <span class="sender"></span>
@@ -481,6 +501,7 @@
         <small></small>
       </div>
     </template>
+
     <template id="commentTemplate">
       <article class="comment">
         <strong></strong>
@@ -488,6 +509,7 @@
         <small></small>
       </article>
     </template>
+
     <script src="app.js"></script>
   </body>
 </html>

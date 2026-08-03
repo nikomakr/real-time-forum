@@ -1,5 +1,3 @@
-// RENTFORUM — Single Page Application
-
 // =====================================================
 // PAGE REFERENCES
 // =====================================================
@@ -55,6 +53,8 @@ const commentTemplate = document.getElementById("commentTemplate");
 // =====================================================
 let currentPostId = null;
 let activeCategory = "all";
+let categoryGroups = [];
+let myUserID = null;
 
 // =====================================================
 // ERROR CONTAINERS
@@ -93,6 +93,7 @@ function showPage(page) {
 function goToLogin() {
   clearErrors();
   loginForm.reset();
+  disconnectWebSocket();
   showPage(loginPage);
 }
 
@@ -105,7 +106,13 @@ function goToRegister() {
 async function goToForum() {
   clearErrors();
   showPage(forumPage);
-  await Promise.all([loadFeed(activeCategory), loadCategoryTiles()]);
+  await fetchMyUserID();
+  connectWebSocket();
+  await Promise.all([
+    loadFeed(activeCategory),
+    loadCategoryTiles(),
+    loadUsers(),
+  ]);
 }
 
 // =====================================================
@@ -123,6 +130,8 @@ async function restoreSession() {
   try {
     const response = await fetch("/api/me", { credentials: "include" });
     if (response.ok) {
+      const data = await response.json();
+      myUserID = data.user_id;
       await goToForum();
     } else {
       goToLogin();
@@ -130,6 +139,21 @@ async function restoreSession() {
   } catch (error) {
     console.error(error);
     goToLogin();
+  }
+}
+
+// =====================================================
+// FETCH MY USER ID
+// =====================================================
+async function fetchMyUserID() {
+  try {
+    const response = await fetch("/api/me", { credentials: "include" });
+    if (response.ok) {
+      const data = await response.json();
+      myUserID = data.user_id;
+    }
+  } catch (error) {
+    console.error("[fetchMyUserID]", error);
   }
 }
 
@@ -311,16 +335,14 @@ loginForm.addEventListener("submit", loginUser);
 // =====================================================
 async function logoutUser() {
   try {
-    const response = await fetch("/api/logout", {
-      method: "POST",
-      credentials: "include",
-    });
-    if (!response.ok) {
-      console.error("Logout failed.");
-    }
+    await fetch("/api/logout", { method: "POST", credentials: "include" });
   } catch (error) {
     console.error(error);
   }
+  disconnectWebSocket();
+  myUserID = null;
+  currentChatUserID = null;
+  currentChatUserName = null;
   loginForm.reset();
   registerForm.reset();
   clearErrors();
@@ -397,23 +419,95 @@ function splitAndTrim(str, sep) {
 }
 
 // =====================================================
-// CATEGORY FILTER — group tiles + category picker modal
-// Tiles are rendered from GET /api/categories (category_groups
-// table); clicking a group tile opens a picker listing that
-// group's categories (categories table) to filter the feed by.
+// CATEGORY TILES — loaded from GET /api/categories
 // =====================================================
-const categoryTiles = document.getElementById("categoryTiles");
-const categoryPickerModal = document.getElementById("categoryPickerModal");
-const categoryPickerList = document.getElementById("categoryPickerList");
-const categoryPickerHeading = document.getElementById("categoryPickerHeading");
-const allCategoriesTile = document.getElementById("category-all");
+async function loadCategoryTiles() {
+  try {
+    const response = await fetch("/api/categories", { credentials: "include" });
+    if (!response.ok) return;
+    categoryGroups = await response.json();
+    renderCategoryTiles();
+  } catch (error) {
+    console.error("[loadCategoryTiles]", error);
+  }
+}
 
-let categoryGroups = [];
+function renderCategoryTiles() {
+  const tilesContainer = document.getElementById("categoryTiles");
+  if (!tilesContainer) return;
+
+  // Keep the "All Discussions" tile, remove any previously injected group tiles
+  const existingGroupTiles = tilesContainer.querySelectorAll(
+    ".category-tile[data-group]",
+  );
+  existingGroupTiles.forEach((t) => t.remove());
+
+  categoryGroups.forEach((group) => {
+    const tile = document.createElement("div");
+    tile.className = "category-tile";
+    tile.dataset.group = group.id;
+    tile.textContent = group.name;
+    tile.setAttribute("role", "button");
+    tile.setAttribute("tabindex", "0");
+    tile.setAttribute("aria-label", `Browse ${group.name} categories`);
+    tile.addEventListener("click", () => openCategoryPicker(group, tile));
+    tile.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        openCategoryPicker(group, tile);
+      }
+    });
+    tilesContainer.appendChild(tile);
+  });
+}
+
+function openCategoryPicker(group, tile) {
+  const modal = document.getElementById("categoryPickerModal");
+  const heading = document.getElementById("categoryPickerHeading");
+  const list = document.getElementById("categoryPickerList");
+  if (!modal || !list || !heading) return;
+
+  heading.textContent = group.name;
+  list.innerHTML = "";
+
+  let currentSubGroup = null;
+
+  group.categories.forEach((cat) => {
+    if (cat.sub_group && cat.sub_group !== currentSubGroup) {
+      currentSubGroup = cat.sub_group;
+      const label = document.createElement("li");
+      label.className = "sub-group-label";
+      label.textContent = cat.sub_group;
+      list.appendChild(label);
+    }
+
+    const li = document.createElement("li");
+    li.textContent = cat.name;
+    li.setAttribute("role", "button");
+    li.setAttribute("tabindex", "0");
+    if (cat.name === activeCategory) li.classList.add("active-category");
+    li.addEventListener("click", () => selectCategory(cat.name, tile));
+    li.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        selectCategory(cat.name, tile);
+      }
+    });
+    list.appendChild(li);
+  });
+
+  modal.classList.remove("hidden");
+}
+
+function closeCategoryPicker() {
+  const modal = document.getElementById("categoryPickerModal");
+  if (modal) modal.classList.add("hidden");
+}
 
 function setActiveCategoryTile(tile) {
-  document.querySelectorAll(".category-tile").forEach((el) => {
-    el.classList.remove("active-category");
-  });
+  document
+    .querySelectorAll(".category-tile")
+    .forEach((t) => t.classList.remove("active-category"));
   if (tile) tile.classList.add("active-category");
 }
 
@@ -424,73 +518,14 @@ function selectCategory(name, tile) {
   loadFeed(activeCategory);
 }
 
-function openCategoryPicker(group, tile) {
-  if (!categoryPickerModal || !categoryPickerList) return;
-  categoryPickerHeading.textContent = group.name;
-  categoryPickerList.innerHTML = "";
-
-  if (!group.categories || group.categories.length === 0) {
-    const empty = document.createElement("li");
-    empty.textContent = "No categories in this group yet.";
-    categoryPickerList.appendChild(empty);
-  } else {
-    let lastSubGroup;
-    group.categories.forEach((cat) => {
-      if (cat.sub_group && cat.sub_group !== lastSubGroup) {
-        const label = document.createElement("li");
-        label.className = "sub-group-label";
-        label.textContent = cat.sub_group;
-        categoryPickerList.appendChild(label);
-        lastSubGroup = cat.sub_group;
-      }
-      const item = document.createElement("li");
-      item.textContent = cat.name;
-      item.setAttribute("role", "listitem");
-      item.tabIndex = 0;
-      if (activeCategory === cat.name) item.classList.add("active-category");
-      item.addEventListener("click", () => selectCategory(cat.name, tile));
-      categoryPickerList.appendChild(item);
-    });
-  }
-
-  categoryPickerModal.classList.remove("hidden");
-}
-
-function closeCategoryPicker() {
-  if (categoryPickerModal) categoryPickerModal.classList.add("hidden");
-}
-
-function renderCategoryTiles() {
-  if (!categoryTiles) return;
-
-  categoryTiles.querySelectorAll(".category-tile[data-group-id]").forEach((el) => el.remove());
-
-  categoryGroups.forEach((group) => {
-    const tile = document.createElement("div");
-    tile.className = "category-tile";
-    tile.dataset.groupId = group.id;
-    tile.setAttribute("role", "listitem");
-    tile.tabIndex = 0;
-    tile.textContent = group.name;
-    tile.addEventListener("click", () => openCategoryPicker(group, tile));
-    categoryTiles.appendChild(tile);
-  });
-}
-
-async function loadCategoryTiles() {
-  try {
-    const response = await fetch("/api/categories", { credentials: "include" });
-    if (!response.ok) return;
-    categoryGroups = await response.json();
-    renderCategoryTiles();
-  } catch (error) {
-    console.error(error);
-  }
-}
-
 function initCategoryFilter() {
-  if (allCategoriesTile) {
-    allCategoriesTile.addEventListener("click", () => selectCategory("all", allCategoriesTile));
+  const allTile = document.getElementById("category-all");
+  if (allTile) {
+    allTile.addEventListener("click", () => {
+      activeCategory = "all";
+      setActiveCategoryTile(allTile);
+      loadFeed("all");
+    });
   }
 }
 
@@ -540,12 +575,10 @@ function renderFeed(posts) {
 
 // =====================================================
 // POST CARD COMPONENT
-// FIX: backend returns post.categories (array), not post.category (string)
 // =====================================================
 function buildPostCard(post) {
   const template = discussionTemplate.content.cloneNode(true);
 
-  // Use first category for badge display — backend returns array
   const firstCategory =
     Array.isArray(post.categories) && post.categories.length > 0
       ? post.categories[0]
@@ -572,19 +605,25 @@ function buildPostCard(post) {
   readBtn.addEventListener("click", () => openPostDetail(post.id));
 
   const commentBtn = template.querySelector(".comment-btn");
-  commentBtn.textContent = `💬 ${post.comment_count || 0}`;
   commentBtn.dataset.postId = post.id;
+  const commentCount = commentBtn.querySelector
+    ? commentBtn
+    : template.querySelector(".comment-btn");
+  const countSpan = document.createTextNode(` ${post.comment_count || 0}`);
+  commentBtn.appendChild(countSpan);
   commentBtn.addEventListener("click", () => openPostDetail(post.id));
 
   const likeBtn = template.querySelector(".like-btn");
-  if (likeBtn) likeBtn.textContent = `👍 ${post.like_count || 0}`;
+  if (likeBtn) {
+    const likeCount = document.createTextNode(` ${post.like_count || 0}`);
+    likeBtn.appendChild(likeCount);
+  }
 
   return template;
 }
 
 // =====================================================
 // POST DETAIL VIEW
-// FIX: backend returns post.categories (array), not post.category (string)
 // =====================================================
 async function openPostDetail(postId) {
   currentPostId = postId;
@@ -613,7 +652,6 @@ async function openPostDetail(postId) {
 }
 
 function renderPostDetail(post) {
-  // Use first category for badge — backend returns array
   const firstCategory =
     Array.isArray(post.categories) && post.categories.length > 0
       ? post.categories[0]
@@ -684,8 +722,6 @@ async function submitComment(event) {
     }
 
     commentText.value = "";
-
-    // Reload comments after posting
     const commentsRes = await fetch(`/api/posts/${currentPostId}/comments`, {
       credentials: "include",
     });
@@ -703,19 +739,13 @@ if (commentForm) {
 
 // =====================================================
 // CREATE POST VIEW
-// FIX: backend expects categories as array of IDs, not a single category name
-// The select value is the category ID — see index.html option values
 // =====================================================
 function openCreatePost() {
-  if (createDiscussionModal) {
-    createDiscussionModal.classList.remove("hidden");
-  }
+  if (createDiscussionModal) createDiscussionModal.classList.remove("hidden");
 }
 
 function closeCreatePost() {
-  if (createDiscussionModal) {
-    createDiscussionModal.classList.add("hidden");
-  }
+  if (createDiscussionModal) createDiscussionModal.classList.add("hidden");
   if (discussionForm) discussionForm.reset();
 }
 
@@ -727,7 +757,6 @@ async function submitPost(event) {
   const bodyEl = document.getElementById("discussionBody");
 
   const title = titleEl ? titleEl.value.trim() : "";
-  // category value is now the category ID from the select option value
   const categoryId = categoryEl ? categoryEl.value : "";
   const content = bodyEl ? bodyEl.value.trim() : "";
 
@@ -749,7 +778,6 @@ async function submitPost(event) {
       method: "POST",
       credentials: "include",
       headers: { "Content-Type": "application/json" },
-      // categories must be an array of category IDs
       body: JSON.stringify({ title, content, categories: [categoryId] }),
     });
 
@@ -787,9 +815,434 @@ document.querySelectorAll(".close-modal").forEach((btn) => {
     document.querySelectorAll(".modal").forEach((modal) => {
       modal.classList.add("hidden");
     });
+    const picker = document.getElementById("categoryPickerModal");
+    if (picker) picker.classList.add("hidden");
     currentPostId = null;
   });
 });
+
+// =====================================================
+// WEBSOCKET CLIENT — Epic 8
+// =====================================================
+let socket = null;
+let currentChatUserID = null;
+let currentChatUserName = null;
+let messageOffset = 0;
+let isLoadingMessages = false;
+let hasMoreMessages = true;
+
+function connectWebSocket() {
+  const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+  const wsURL = `${protocol}//${window.location.host}/ws`;
+
+  socket = new WebSocket(wsURL);
+
+  socket.addEventListener("open", () => {
+    const status = document.getElementById("socketStatus");
+    if (status)
+      status.innerHTML = `<svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-dot"/></svg> Connected`;
+  });
+
+  socket.addEventListener("message", (event) => {
+    // Server may batch messages separated by newlines
+    const lines = event.data.split("\n").filter((l) => l.trim());
+    lines.forEach((line) => {
+      try {
+        const envelope = JSON.parse(line);
+        handleWebSocketMessage(envelope);
+      } catch (e) {
+        console.error("[WS parse error]", e);
+      }
+    });
+  });
+
+  socket.addEventListener("close", () => {
+    const status = document.getElementById("socketStatus");
+    if (status)
+      status.innerHTML = `<svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-dot"/></svg> Disconnected`;
+    // Reconnect after 3 seconds if still logged in
+    if (myUserID) {
+      setTimeout(connectWebSocket, 3000);
+    }
+  });
+
+  socket.addEventListener("error", (e) => {
+    console.error("[WS error]", e);
+  });
+}
+
+function disconnectWebSocket() {
+  if (socket) {
+    socket.close();
+    socket = null;
+  }
+}
+
+function handleWebSocketMessage(envelope) {
+  switch (envelope.type) {
+    case "chat_message":
+      handleIncomingChatMessage(envelope.payload);
+      break;
+    case "presence":
+      handlePresenceUpdate(envelope.payload);
+      break;
+    case "notification":
+      handleNotification(envelope.payload);
+      break;
+    default:
+      console.warn("[WS unknown type]", envelope.type);
+  }
+}
+
+function handleIncomingChatMessage(payload) {
+  const isCurrentConversation =
+    payload.sender_id === currentChatUserID ||
+    payload.receiver_id === currentChatUserID;
+
+  if (isCurrentConversation) {
+    appendMessage(payload);
+    scrollChatToBottom();
+  }
+
+  // Refresh user list so ordering updates
+  loadUsers();
+}
+
+function handlePresenceUpdate(payload) {
+  const onlineIDs = payload.online_user_ids || [];
+  updateOnlineCounter(onlineIDs.length);
+  loadUsers();
+}
+
+function handleNotification(payload) {
+  // Only show notification if the message is not from the currently open conversation
+  if (payload.sender_id !== currentChatUserID) {
+    showNotificationBadge(payload);
+    showToast(`New message from ${escapeHTML(payload.sender_name)}`);
+  }
+}
+
+// =====================================================
+// USER LIST — Epic 8
+// =====================================================
+async function loadUsers() {
+  try {
+    const response = await fetch("/api/users", { credentials: "include" });
+    if (!response.ok) return;
+    const users = await response.json();
+    renderUserLists(users);
+  } catch (error) {
+    console.error("[loadUsers]", error);
+  }
+}
+
+function renderUserLists(users) {
+  const onlineList = document.getElementById("onlineList");
+  const offlineList = document.getElementById("offlineList");
+  if (!onlineList || !offlineList) return;
+
+  onlineList.innerHTML = "";
+  offlineList.innerHTML = "";
+
+  let onlineCount = 0;
+
+  users.forEach((user) => {
+    const li = buildUserListItem(user);
+    if (user.is_online) {
+      onlineList.appendChild(li);
+      onlineCount++;
+    } else {
+      offlineList.appendChild(li);
+    }
+  });
+
+  updateOnlineCounter(onlineCount);
+}
+
+function buildUserListItem(user) {
+  const li = document.createElement("li");
+  li.className = `user-item${user.is_online ? " is-online" : " is-offline"}`;
+  if (user.id === currentChatUserID) {
+    li.classList.add("active-chat");
+  }
+  li.setAttribute("role", "button");
+  li.setAttribute("tabindex", "0");
+  li.setAttribute("aria-label", `Chat with ${escapeHTML(user.nickname)}`);
+
+  li.innerHTML = `
+    <span class="user-status-dot${user.is_online ? " online" : ""}"></span>
+    <span class="user-nickname">${escapeHTML(user.nickname)}</span>
+  `;
+
+  li.addEventListener("click", () => openConversation(user));
+  li.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      openConversation(user);
+    }
+  });
+
+  return li;
+}
+
+function updateOnlineCounter(count) {
+  const counter = document.getElementById("onlineCounter");
+  if (counter) counter.innerHTML = `Online: <strong>${count}</strong>`;
+}
+
+// =====================================================
+// CONVERSATION — Epic 8
+// =====================================================
+async function openConversation(user) {
+  currentChatUserID = user.id;
+  currentChatUserName = user.nickname;
+  messageOffset = 0;
+  hasMoreMessages = true;
+
+  // Update chat heading to show who you are chatting with
+  const chatHeading = document.getElementById("chatHeading");
+  if (chatHeading) chatHeading.textContent = user.nickname;
+
+  // Enable message form
+  const messageInput = document.getElementById("messageInput");
+  const sendButton = document.getElementById("sendMessageButton");
+  if (messageInput) messageInput.disabled = false;
+  if (sendButton) sendButton.disabled = false;
+
+  // Clear chat window
+  const chatWindow = document.getElementById("chatWindow");
+  if (chatWindow) {
+    chatWindow.innerHTML = '<p class="loading-text">Loading messages…</p>';
+    chatWindow.removeEventListener("scroll", handleChatScroll);
+    chatWindow.addEventListener("scroll", handleChatScroll);
+  }
+
+  // Highlight active user in list
+  document
+    .querySelectorAll(".user-item")
+    .forEach((li) => li.classList.remove("active-chat"));
+
+  await loadMessages(false);
+  loadUsers();
+}
+
+async function loadMessages(prepend = false) {
+  if (!currentChatUserID || isLoadingMessages) return;
+  isLoadingMessages = true;
+
+  const chatWindow = document.getElementById("chatWindow");
+
+  try {
+    const response = await fetch(
+      `/api/messages/${currentChatUserID}?offset=${messageOffset}`,
+      { credentials: "include" },
+    );
+
+    if (!response.ok) {
+      if (chatWindow && !prepend) {
+        chatWindow.innerHTML =
+          '<p class="feed-error">Could not load messages.</p>';
+      }
+      return;
+    }
+
+    const messages = await response.json();
+    if (!chatWindow) return;
+
+    if (!prepend) {
+      chatWindow.innerHTML = "";
+    }
+
+    if (!messages || messages.length === 0) {
+      if (!prepend) {
+        chatWindow.innerHTML =
+          '<p class="no-results">No messages yet. Say hello!</p>';
+      }
+      hasMoreMessages = false;
+      return;
+    }
+
+    if (messages.length < 10) {
+      hasMoreMessages = false;
+    }
+
+    if (prepend) {
+      // Save scroll height before prepending so position is preserved
+      const prevScrollHeight = chatWindow.scrollHeight;
+      messages.forEach((msg) => {
+        chatWindow.insertBefore(buildMessageBubble(msg), chatWindow.firstChild);
+      });
+      chatWindow.scrollTop = chatWindow.scrollHeight - prevScrollHeight;
+    } else {
+      messages.forEach((msg) => {
+        chatWindow.appendChild(buildMessageBubble(msg));
+      });
+      scrollChatToBottom();
+    }
+
+    messageOffset += messages.length;
+  } catch (error) {
+    console.error("[loadMessages]", error);
+  } finally {
+    isLoadingMessages = false;
+  }
+}
+
+function buildMessageBubble(msg) {
+  const isSent = msg.sender_id === myUserID;
+  const div = document.createElement("div");
+  div.className = `message ${isSent ? "sent" : "received"}`;
+  div.innerHTML = `
+    <span class="sender">${escapeHTML(msg.sender_name)}</span>
+    <p>${escapeHTML(msg.content)}</p>
+    <small>${formatDate(msg.created_at)}</small>
+  `;
+  return div;
+}
+
+function appendMessage(payload) {
+  const chatWindow = document.getElementById("chatWindow");
+  if (!chatWindow) return;
+
+  const noResults = chatWindow.querySelector(".no-results");
+  if (noResults) noResults.remove();
+
+  const isSent = payload.sender_id === myUserID;
+  const div = document.createElement("div");
+  div.className = `message ${isSent ? "sent" : "received"}`;
+  div.innerHTML = `
+    <span class="sender">${escapeHTML(payload.sender_name)}</span>
+    <p>${escapeHTML(payload.content)}</p>
+    <small>${formatDate(payload.created_at)}</small>
+  `;
+  chatWindow.appendChild(div);
+  messageOffset++;
+}
+
+function scrollChatToBottom() {
+  const chatWindow = document.getElementById("chatWindow");
+  if (chatWindow) chatWindow.scrollTop = chatWindow.scrollHeight;
+}
+
+// =====================================================
+// SCROLL PAGINATION WITH THROTTLE — Epic 8
+// =====================================================
+let lastScrollTime = 0;
+const SCROLL_THROTTLE_MS = 500;
+
+function handleChatScroll(event) {
+  const now = Date.now();
+  if (now - lastScrollTime < SCROLL_THROTTLE_MS) return;
+  lastScrollTime = now;
+
+  const chatWindow = event.target;
+  if (chatWindow.scrollTop === 0 && hasMoreMessages && !isLoadingMessages) {
+    loadMessages(true);
+  }
+}
+
+// =====================================================
+// SEND MESSAGE VIA WEBSOCKET — Epic 8
+// =====================================================
+function sendMessage(event) {
+  event.preventDefault();
+  if (!currentChatUserID) {
+    alert("Please select a conversation first.");
+    return;
+  }
+  if (!socket || socket.readyState !== WebSocket.OPEN) {
+    alert("Not connected. Please wait and try again.");
+    return;
+  }
+
+  const messageInput = document.getElementById("messageInput");
+  const content = messageInput ? messageInput.value.trim() : "";
+  if (!content) return;
+
+  socket.send(
+    JSON.stringify({
+      type: "chat_message",
+      receiver_id: currentChatUserID,
+      content: content,
+    }),
+  );
+
+  messageInput.value = "";
+}
+
+const messageForm = document.getElementById("messageForm");
+if (messageForm) {
+  messageForm.addEventListener("submit", sendMessage);
+}
+
+// =====================================================
+// NOTIFICATIONS — Epic 8
+// =====================================================
+let notificationCount = 0;
+
+function showNotificationBadge(payload) {
+  notificationCount++;
+
+  const btn = document.getElementById("notificationButton");
+  if (btn) {
+    let badge = btn.querySelector(".notification-badge");
+    if (!badge) {
+      badge = document.createElement("span");
+      badge.className = "notification-badge";
+      badge.setAttribute("aria-label", "New notifications");
+      btn.appendChild(badge);
+    }
+    badge.textContent = notificationCount;
+    badge.classList.remove("hidden");
+  }
+
+  const notificationList = document.getElementById("notificationList");
+  if (notificationList) {
+    const li = document.createElement("li");
+    li.innerHTML = `
+      <strong>${escapeHTML(payload.sender_name)}</strong> sent you a message.
+      <small>${formatDate(new Date().toISOString())}</small>
+    `;
+    notificationList.prepend(li);
+  }
+}
+
+function clearNotificationBadge() {
+  notificationCount = 0;
+  const badge = document.querySelector(".notification-badge");
+  if (badge) badge.classList.add("hidden");
+}
+
+const notificationButton = document.getElementById("notificationButton");
+if (notificationButton) {
+  notificationButton.addEventListener("click", () => {
+    const panel = document.getElementById("notificationPanel");
+    if (panel) {
+      const isHidden = panel.classList.contains("hidden");
+      panel.classList.toggle("hidden");
+      notificationButton.setAttribute(
+        "aria-expanded",
+        isHidden ? "true" : "false",
+      );
+      if (isHidden) clearNotificationBadge();
+    }
+  });
+}
+
+// =====================================================
+// TOAST — Epic 8
+// =====================================================
+function showToast(message) {
+  const toast = document.getElementById("toast");
+  if (!toast) return;
+  toast.textContent = message;
+  toast.classList.remove("hidden");
+  toast.classList.add("show");
+  setTimeout(() => {
+    toast.classList.remove("show");
+    toast.classList.add("hidden");
+  }, 3000);
+}
 
 // =====================================================
 // INITIALISE APP
@@ -813,4 +1266,6 @@ window.RentForum = {
   logoutUser,
   loadFeed,
   openPostDetail,
+  loadUsers,
+  openConversation,
 };

@@ -1445,3 +1445,315 @@ button:disabled {
   padding: 40px;
   font-size: 15px;
 }
+/* ========================================================== SVG ICON SIZING ========================================================== */
+.icon {
+  display: inline-block;
+  vertical-align: middle;
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+}
+
+.logo .icon {
+  width: 22px;
+  height: 22px;
+}
+
+.socket-status .icon,
+.online-counter .icon {
+  width: 10px;
+  height: 10px;
+}
+
+.empty-icon {
+  display: block;
+  width: 48px;
+  height: 48px;
+  margin: 0 auto 16px;
+  color: #9ca3af;
+}
+
+/* ========================================================== CATEGORY TILES ========================================================== */
+.category-tiles {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.category-tile {
+  padding: 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: 0.25s;
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+  user-select: none;
+}
+
+.category-tile:hover {
+  background: #eef5ff;
+  color: #0066cc;
+}
+
+.category-tile.active-category {
+  background: #0066cc;
+  color: white;
+}
+
+/* ========================================================== CATEGORY PICKER MODAL ========================================================== */
+.category-picker-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 400px;
+  overflow-y: auto;
+  margin-top: 16px;
+}
+
+.category-picker-list li {
+  padding: 10px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #374151;
+  transition: 0.2s;
+}
+
+.category-picker-list li:hover {
+  background: #eef5ff;
+  color: #0066cc;
+}
+
+.category-picker-list li.active-category {
+  background: #0066cc;
+  color: white;
+}
+
+.sub-group-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #9ca3af !important;
+  cursor: default !important;
+  padding: 12px 14px 4px !important;
+  background: none !important;
+}
+
+.sub-group-label:hover {
+  background: none !important;
+  color: #9ca3af !important;
+}
+
+/* ========================================================== USER LIST ITEMS ========================================================== */
+.user-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 16px;
+  max-height: 180px;
+  overflow-y: auto;
+}
+
+.user-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: 0.25s;
+  list-style: none;
+}
+
+.user-item:hover {
+  background: #eef5ff;
+}
+
+.user-item.active-chat {
+  background: #eef5ff;
+  border-left: 3px solid #0066cc;
+}
+
+.user-status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #9ca3af;
+  flex-shrink: 0;
+}
+
+.user-status-dot.online {
+  background: #22c55e;
+}
+
+.user-nickname {
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+}
+
+/* ========================================================== NOTIFICATION BADGE ========================================================== */
+#notificationButton {
+  position: relative;
+}
+
+.notification-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: #dc2626;
+  color: white;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+/* ========================================================== TOAST ========================================================== */
+#toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: #1f2937;
+  color: white;
+  padding: 14px 20px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  z-index: 1100;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(10px);
+  transition: 0.3s;
+  max-width: 300px;
+}
+
+#toast.show {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+/* ========================================================== CHAT PANEL LAYOUT FIX ========================================================== */
+#messageForm {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #e5e7eb;
+}
+
+#messageForm input {
+  flex: 1;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 14px;
+}
+
+#sendMessageButton {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: #0066cc;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  padding: 0;
+}
+
+#sendMessageButton:hover {
+  background: #0053a8;
+}
+
+#sendMessageButton:disabled,
+#messageInput:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ========================================================== SLIM FOOTER ========================================================== */
+footer {
+  height: 80px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 40px;
+  background: #ffffff;
+  border-top: 1px solid #e5e7eb;
+  margin-top: 40px;
+}
+
+.footer-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #0066cc;
+}
+
+.footer-links {
+  display: flex;
+  gap: 24px;
+}
+
+.footer-links a {
+  font-size: 13px;
+  color: #6b7280;
+  transition: 0.2s;
+}
+
+.footer-links a:hover {
+  color: #0066cc;
+}
+
+.copyright {
+  font-size: 12px;
+  color: #9ca3af;
+  white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+  footer {
+    flex-direction: column;
+    height: auto;
+    padding: 20px;
+    gap: 12px;
+    text-align: center;
+  }
+  .footer-links {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+  }
+}
+
+/* ========================================================== SETTING ROW ========================================================== */
+.setting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 16px;
+}
+
+.setting-row label {
+  font-weight: 500;
+  color: #374151;
+}
+
+.setting-row input[type="checkbox"] {
+  width: auto;
+  transform: scale(1.2);
+}
