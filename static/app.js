@@ -615,11 +615,39 @@ function buildPostCard(post) {
 
   const likeBtn = template.querySelector(".like-btn");
   if (likeBtn) {
-    const likeCount = document.createTextNode(` ${post.like_count || 0}`);
-    likeBtn.appendChild(likeCount);
+    likeBtn.dataset.postId = post.id;
+    setLikeButtonState(likeBtn, post.liked, post.like_count || 0);
+    likeBtn.addEventListener("click", () => toggleLike(post.id, likeBtn));
   }
 
   return template;
+}
+
+// =====================================================
+// LIKE BUTTON
+// =====================================================
+function setLikeButtonState(likeBtn, liked, count) {
+  likeBtn.classList.toggle("liked", !!liked);
+  likeBtn.setAttribute("aria-pressed", liked ? "true" : "false");
+  const countEl = likeBtn.querySelector(".like-count");
+  if (countEl) countEl.textContent = ` ${count}`;
+}
+
+async function toggleLike(postId, likeBtn) {
+  likeBtn.disabled = true;
+  try {
+    const response = await fetch(`/api/posts/${postId}/like`, {
+      method: "POST",
+      credentials: "include",
+    });
+    if (!response.ok) return;
+    const { liked, like_count } = await response.json();
+    setLikeButtonState(likeBtn, liked, like_count);
+  } catch (error) {
+    console.error(error);
+  } finally {
+    likeBtn.disabled = false;
+  }
 }
 
 // =====================================================
@@ -821,6 +849,15 @@ document.querySelectorAll(".close-modal").forEach((btn) => {
   });
 });
 
+// Close a modal when clicking its backdrop (outside .modal-content)
+document.querySelectorAll(".modal").forEach((modal) => {
+  modal.addEventListener("click", (event) => {
+    if (event.target !== modal) return;
+    modal.classList.add("hidden");
+    currentPostId = null;
+  });
+});
+
 // =====================================================
 // WEBSOCKET CLIENT — Epic 8
 // =====================================================
@@ -944,19 +981,40 @@ function renderUserLists(users) {
   onlineList.innerHTML = "";
   offlineList.innerHTML = "";
 
-  let onlineCount = 0;
+  const onlineUsers = users.filter((u) => u.is_online);
+  const offlineUsers = users.filter((u) => !u.is_online);
 
-  users.forEach((user) => {
-    const li = buildUserListItem(user);
-    if (user.is_online) {
-      onlineList.appendChild(li);
-      onlineCount++;
-    } else {
-      offlineList.appendChild(li);
-    }
-  });
+  // Update panel headings with live counts
+  const onlineHeading = onlineList.previousElementSibling;
+  const offlineHeading = offlineList.previousElementSibling;
+  if (onlineHeading)
+    onlineHeading.textContent = `Online Members (${onlineUsers.length})`;
+  if (offlineHeading)
+    offlineHeading.textContent = `Offline (${offlineUsers.length})`;
 
-  updateOnlineCounter(onlineCount);
+  if (onlineUsers.length === 0) {
+    const li = document.createElement("li");
+    li.className = "user-list-empty";
+    li.textContent = "No members online";
+    onlineList.appendChild(li);
+  } else {
+    onlineUsers.forEach((user) =>
+      onlineList.appendChild(buildUserListItem(user)),
+    );
+  }
+
+  if (offlineUsers.length === 0) {
+    const li = document.createElement("li");
+    li.className = "user-list-empty";
+    li.textContent = "No offline members";
+    offlineList.appendChild(li);
+  } else {
+    offlineUsers.forEach((user) =>
+      offlineList.appendChild(buildUserListItem(user)),
+    );
+  }
+
+  updateOnlineCounter(onlineUsers.length);
 }
 
 function buildUserListItem(user) {

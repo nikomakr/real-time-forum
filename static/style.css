@@ -431,6 +431,13 @@ header {
 .like-btn:hover {
   background: #d9ebff;
 }
+.like-btn.liked {
+  background: #0066cc;
+  color: white;
+}
+.like-btn.liked:hover {
+  background: #0053a8;
+}
 /* ==========================================================  COMMENT BUTTON ========================================================== */
 .comment-btn {
   background: #f4f6fb;
@@ -638,6 +645,8 @@ header {
   background: #ffffff;
   width: 100%;
   max-width: 700px;
+  max-height: calc(100vh - 60px);
+  overflow-y: auto;
   border-radius: 18px;
   padding: 35px;
   position: relative;
@@ -1756,4 +1765,347 @@ footer {
 .setting-row input[type="checkbox"] {
   width: auto;
   transform: scale(1.2);
+}
+/* ========================================================== MEMBERS PANEL HEADINGS ========================================================== */
+.members-panel h2 {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #9ca3af;
+  margin-bottom: 8px;
+  margin-top: 16px;
+}
+
+.members-panel h2:first-child {
+  margin-top: 0;
+}
+
+/* ========================================================== USER LIST EMPTY STATE ========================================================== */
+.user-list-empty {
+  font-size: 13px;
+  color: #9ca3af;
+  padding: 8px 12px;
+  list-style: none;
+  font-style: italic;
+}
+
+/* ========================================================== ONLINE COUNTER POSITION ========================================================== */
+.online-counter {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #374151;
+  z-index: 100;
+  box-shadow: 0 2px 8px rgba(0,0,0,.08);
+}
+
+/* ========================================================== CHAT SIDEBAR  ========================================================== */
+.chat-sidebar {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 140px);
+  position: sticky;
+  top: 100px;
+  overflow: hidden;
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 20px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
+}
+
+/* Members panel capped so it doesn't crush the chat window */
+.members-panel {
+  flex-shrink: 0;
+  max-height: 200px;
+  overflow-y: auto;
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+/* Chat panel takes all remaining vertical space */
+.chat-panel {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.chat-header {
+  flex-shrink: 0;
+}
+
+/* Chat window fills whatever space is left */
+.chat-window {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Message form never shrinks */
+#messageForm {
+  flex-shrink: 0;
+}
+
+/* ========================================================== DESKTOP LARGE  ========================================================== */
+@media (min-width: 1400px) {
+  .main-layout {
+    grid-template-columns: 280px 1fr 380px;
+    gap: 30px;
+    padding: 30px 40px;
+  }
+}
+
+/* ========================================================== DESKTOP ========================================================== */
+@media (max-width: 1200px) {
+  .main-layout {
+    grid-template-columns: 220px 1fr 300px;
+    gap: 20px;
+    padding: 20px;
+  }
+}
+
+/* ========================================================== TABLET LANDSCAPE ========================================================== */
+@media (max-width: 1024px) {
+  .main-layout {
+    grid-template-columns: 200px 1fr;
+    grid-template-rows: auto auto;
+  }
+
+  .chat-sidebar {
+    grid-column: 1 / -1;
+    height: 520px;
+    position: relative;
+    top: 0;
+    flex-direction: row;
+    gap: 20px;
+  }
+
+  .members-panel {
+    width: 220px;
+    flex-shrink: 0;
+    max-height: none;
+    height: 100%;
+    overflow-y: auto;
+    border-bottom: none;
+    border-right: 1px solid #e5e7eb;
+    padding-bottom: 0;
+    padding-right: 16px;
+    margin-bottom: 0;
+  }
+
+  .chat-panel {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+/* ========================================================== TABLET PORTRAIT ========================================================== */
+@media (max-width: 768px) {
+  .main-layout {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    padding: 16px;
+  }
+
+  .sidebar {
+    position: relative;
+    top: 0;
+  }
+
+  .chat-sidebar {
+    grid-column: 1;
+    height: 560px;
+    flex-direction: column;
+    border-radius: 16px;
+  }
+
+  .members-panel {
+    width: auto;
+    max-height: 160px;
+    border-right: none;
+    border-bottom: 1px solid #e5e7eb;
+    padding-right: 0;
+    padding-bottom: 12px;
+    margin-bottom: 12px;
+  }
+
+  header {
+    flex-wrap: wrap;
+    height: auto;
+    padding: 12px 16px;
+    gap: 12px;
+  }
+
+  .header-right {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  #searchInput {
+    width: 100%;
+    order: 10;
+    margin-top: 8px;
+  }
+
+  .main-nav {
+    display: none;
+  }
+
+  .mobile-menu-toggle {
+    display: inline-flex;
+  }
+}
+
+/* ========================================================== MOBILE ========================================================== */
+@media (max-width: 480px) {
+  .main-layout {
+    padding: 12px;
+    gap: 12px;
+  }
+
+  .chat-sidebar {
+    height: 480px;
+    padding: 14px;
+    border-radius: 14px;
+  }
+
+  .members-panel {
+    max-height: 120px;
+  }
+
+  .feed-header h2 {
+    font-size: 22px;
+  }
+
+  .discussion-card {
+    padding: 16px;
+    border-radius: 14px;
+  }
+
+  .discussion-footer {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .read-btn {
+    margin-left: 0;
+    width: 100%;
+    text-align: center;
+  }
+
+  .modal-content {
+    padding: 20px;
+    border-radius: 14px;
+  }
+
+  .auth-left {
+    padding: 30px 20px;
+  }
+
+  .auth-left h1 {
+    font-size: 30px;
+  }
+
+  .category-tiles {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .category-tile {
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+
+  footer {
+    padding: 16px;
+    height: auto;
+    gap: 10px;
+  }
+
+  .footer-links {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+  }
+
+  .footer-links a {
+    font-size: 12px;
+  }
+
+  .copyright {
+    font-size: 11px;
+  }
+}
+
+/* ========================================================== USER LIST SCROLLBAR ========================================================== */
+.members-panel::-webkit-scrollbar,
+.chat-window::-webkit-scrollbar,
+.user-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.members-panel::-webkit-scrollbar-thumb,
+.chat-window::-webkit-scrollbar-thumb,
+.user-list::-webkit-scrollbar-thumb {
+  background: #e5e7eb;
+  border-radius: 4px;
+}
+
+.members-panel::-webkit-scrollbar-thumb:hover,
+.chat-window::-webkit-scrollbar-thumb:hover,
+.user-list::-webkit-scrollbar-thumb:hover {
+  background: #d1d5db;
+}
+
+/* ========================================================== MESSAGE BUBBLES ========================================================== */
+.message {
+  max-width: 85%;
+  padding: 10px 14px;
+  border-radius: 14px;
+  line-height: 1.5;
+  font-size: 14px;
+  word-wrap: break-word;
+  flex-shrink: 0;
+}
+
+.message .sender {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  margin-bottom: 4px;
+  opacity: 0.75;
+}
+
+.message small {
+  display: block;
+  font-size: 11px;
+  margin-top: 6px;
+  opacity: 0.65;
+}
+
+.message.sent {
+  align-self: flex-end;
+  background: #0066cc;
+  color: white;
+  border-bottom-right-radius: 4px;
+}
+
+.message.received {
+  align-self: flex-start;
+  background: #f1f5f9;
+  color: #222;
+  border-bottom-left-radius: 4px;
 }

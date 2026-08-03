@@ -35,8 +35,8 @@ func createSession(w http.ResponseWriter, userID string) error {
 		Value:    sessionID,
 		Expires:  expiresAt,
 		HttpOnly: true,
-		Secure:   true,
-		SameSite: http.SameSiteStrictMode,
+		Secure:   false, //due to local 8080
+		SameSite: http.SameSiteLaxMode,
 		Path:     "/",
 	})
 
