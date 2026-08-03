@@ -65,8 +65,8 @@ func RequireAuth(next http.HandlerFunc) http.HandlerFunc {
 					Value:    cookie.Value,
 					Expires:  newExpiry,
 					HttpOnly: true,
-					Secure:   true,
-					SameSite: http.SameSiteStrictMode,
+					Secure:   false, //due to local 8080
+					SameSite: http.SameSiteLaxMode,
 					Path:     "/",
 				})
 			}

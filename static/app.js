@@ -615,11 +615,39 @@ function buildPostCard(post) {
 
   const likeBtn = template.querySelector(".like-btn");
   if (likeBtn) {
-    const likeCount = document.createTextNode(` ${post.like_count || 0}`);
-    likeBtn.appendChild(likeCount);
+    likeBtn.dataset.postId = post.id;
+    setLikeButtonState(likeBtn, post.liked, post.like_count || 0);
+    likeBtn.addEventListener("click", () => toggleLike(post.id, likeBtn));
   }
 
   return template;
+}
+
+// =====================================================
+// LIKE BUTTON
+// =====================================================
+function setLikeButtonState(likeBtn, liked, count) {
+  likeBtn.classList.toggle("liked", !!liked);
+  likeBtn.setAttribute("aria-pressed", liked ? "true" : "false");
+  const countEl = likeBtn.querySelector(".like-count");
+  if (countEl) countEl.textContent = ` ${count}`;
+}
+
+async function toggleLike(postId, likeBtn) {
+  likeBtn.disabled = true;
+  try {
+    const response = await fetch(`/api/posts/${postId}/like`, {
+      method: "POST",
+      credentials: "include",
+    });
+    if (!response.ok) return;
+    const { liked, like_count } = await response.json();
+    setLikeButtonState(likeBtn, liked, like_count);
+  } catch (error) {
+    console.error(error);
+  } finally {
+    likeBtn.disabled = false;
+  }
 }
 
 // =====================================================
@@ -817,6 +845,15 @@ document.querySelectorAll(".close-modal").forEach((btn) => {
     });
     const picker = document.getElementById("categoryPickerModal");
     if (picker) picker.classList.add("hidden");
+    currentPostId = null;
+  });
+});
+
+// Close a modal when clicking its backdrop (outside .modal-content)
+document.querySelectorAll(".modal").forEach((modal) => {
+  modal.addEventListener("click", (event) => {
+    if (event.target !== modal) return;
+    modal.classList.add("hidden");
     currentPostId = null;
   });
 });

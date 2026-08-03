@@ -48,6 +48,8 @@ func main() {
 			} else {
 				utils.WriteError(w, http.StatusMethodNotAllowed, "method not allowed")
 			}
+		} else if strings.HasSuffix(r.URL.Path, "/like") {
+			handlers.ToggleLike(w, r)
 		} else {
 			handlers.GetPost(w, r)
 		}

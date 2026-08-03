@@ -20,6 +20,8 @@ type postResponse struct {
 	Author       string   `json:"author"`
 	Categories   []string `json:"categories"`
 	CommentCount int      `json:"comment_count"`
+	LikeCount    int      `json:"like_count"`
+	Liked        bool     `json:"liked"`
 	CreatedAt    string   `json:"created_at"`
 }
 
@@ -30,6 +32,8 @@ type postDetailResponse struct {
 	Author       string   `json:"author"`
 	Categories   []string `json:"categories"`
 	CommentCount int      `json:"comment_count"`
+	LikeCount    int      `json:"like_count"`
+	Liked        bool     `json:"liked"`
 	CreatedAt    string   `json:"created_at"`
 }
 
@@ -48,6 +52,7 @@ func GetPost(w http.ResponseWriter, r *http.Request) {
 
 	var post postDetailResponse
 	var categoryStr string
+	var liked int
 
 	err := db.DB.QueryRow(`
 		SELECT
@@ -62,11 +67,13 @@ func GetPost(w http.ResponseWriter, r *http.Request) {
 				JOIN categories c ON pc.category_id = c.id
 				WHERE pc.post_id = p.id
 			), '') AS categories,
-			(SELECT COUNT(*) FROM comments WHERE post_id = p.id) AS comment_count
+			(SELECT COUNT(*) FROM comments WHERE post_id = p.id) AS comment_count,
+			(SELECT COUNT(*) FROM post_likes WHERE post_id = p.id) AS like_count,
+			EXISTS(SELECT 1 FROM post_likes WHERE post_id = p.id AND user_id = ?) AS liked
 		FROM posts p
 		JOIN users u ON p.author_id = u.id
 		WHERE p.id = ?
-	`, id).Scan(
+	`, GetUserID(r), id).Scan(
 		&post.ID,
 		&post.Title,
 		&post.Content,
@@ -74,7 +81,10 @@ func GetPost(w http.ResponseWriter, r *http.Request) {
 		&post.Author,
 		&categoryStr,
 		&post.CommentCount,
+		&post.LikeCount,
+		&liked,
 	)
+	post.Liked = liked != 0
 
 	if errors.Is(err, sql.ErrNoRows) {
 		utils.WriteError(w, http.StatusNotFound, "post not found")
@@ -119,12 +129,14 @@ func GetPosts(w http.ResponseWriter, r *http.Request) {
 				JOIN categories c ON pc.category_id = c.id
 				WHERE pc.post_id = p.id
 			), '') AS categories,
-			(SELECT COUNT(*) FROM comments WHERE post_id = p.id) AS comment_count
+			(SELECT COUNT(*) FROM comments WHERE post_id = p.id) AS comment_count,
+			(SELECT COUNT(*) FROM post_likes WHERE post_id = p.id) AS like_count,
+			EXISTS(SELECT 1 FROM post_likes WHERE post_id = p.id AND user_id = ?) AS liked
 		FROM posts p
 		JOIN users u ON p.author_id = u.id
 	`
 
-	var args []interface{}
+	args := []interface{}{GetUserID(r)}
 
 	if category != "" {
 		query += `
@@ -155,6 +167,7 @@ func GetPosts(w http.ResponseWriter, r *http.Request) {
 	for rows.Next() {
 		var post postResponse
 		var categoryStr string
+		var liked int
 
 		if err := rows.Scan(
 			&post.ID,
@@ -164,11 +177,14 @@ func GetPosts(w http.ResponseWriter, r *http.Request) {
 			&post.Author,
 			&categoryStr,
 			&post.CommentCount,
+			&post.LikeCount,
+			&liked,
 		); err != nil {
 			log.Printf("[ERROR] [GetPosts Scan]: %v", err)
 			utils.WriteError(w, http.StatusInternalServerError, "error processing post data")
 			return
 		}
+		post.Liked = liked != 0
 
 		if categoryStr != "" {
 			post.Categories = utils.SplitAndTrim(categoryStr, ",")
