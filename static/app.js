@@ -105,7 +105,7 @@ function goToRegister() {
 async function goToForum() {
   clearErrors();
   showPage(forumPage);
-  await loadFeed(activeCategory);
+  await Promise.all([loadFeed(activeCategory), loadCategoryTiles()]);
 }
 
 // =====================================================
@@ -397,33 +397,101 @@ function splitAndTrim(str, sep) {
 }
 
 // =====================================================
-// CATEGORY FILTER STRIP
+// CATEGORY FILTER — group tiles + category picker modal
+// Tiles are rendered from GET /api/categories (category_groups
+// table); clicking a group tile opens a picker listing that
+// group's categories (categories table) to filter the feed by.
 // =====================================================
-const categoryMap = {
-  "category-all": "all",
-  "category-england": "England",
-  "category-wales": "Wales",
-  "category-scotland": "Scotland",
-  "category-ni": "N. Ireland",
-  "category-benefits": "Benefits",
-  "category-legal": "Legal Advice",
-  "category-social": "Social Housing",
-  "category-private": "Private Renting",
-};
+const categoryTiles = document.getElementById("categoryTiles");
+const categoryPickerModal = document.getElementById("categoryPickerModal");
+const categoryPickerList = document.getElementById("categoryPickerList");
+const categoryPickerHeading = document.getElementById("categoryPickerHeading");
+const allCategoriesTile = document.getElementById("category-all");
+
+let categoryGroups = [];
+
+function setActiveCategoryTile(tile) {
+  document.querySelectorAll(".category-tile").forEach((el) => {
+    el.classList.remove("active-category");
+  });
+  if (tile) tile.classList.add("active-category");
+}
+
+function selectCategory(name, tile) {
+  activeCategory = name;
+  setActiveCategoryTile(tile);
+  closeCategoryPicker();
+  loadFeed(activeCategory);
+}
+
+function openCategoryPicker(group, tile) {
+  if (!categoryPickerModal || !categoryPickerList) return;
+  categoryPickerHeading.textContent = group.name;
+  categoryPickerList.innerHTML = "";
+
+  if (!group.categories || group.categories.length === 0) {
+    const empty = document.createElement("li");
+    empty.textContent = "No categories in this group yet.";
+    categoryPickerList.appendChild(empty);
+  } else {
+    let lastSubGroup;
+    group.categories.forEach((cat) => {
+      if (cat.sub_group && cat.sub_group !== lastSubGroup) {
+        const label = document.createElement("li");
+        label.className = "sub-group-label";
+        label.textContent = cat.sub_group;
+        categoryPickerList.appendChild(label);
+        lastSubGroup = cat.sub_group;
+      }
+      const item = document.createElement("li");
+      item.textContent = cat.name;
+      item.setAttribute("role", "listitem");
+      item.tabIndex = 0;
+      if (activeCategory === cat.name) item.classList.add("active-category");
+      item.addEventListener("click", () => selectCategory(cat.name, tile));
+      categoryPickerList.appendChild(item);
+    });
+  }
+
+  categoryPickerModal.classList.remove("hidden");
+}
+
+function closeCategoryPicker() {
+  if (categoryPickerModal) categoryPickerModal.classList.add("hidden");
+}
+
+function renderCategoryTiles() {
+  if (!categoryTiles) return;
+
+  categoryTiles.querySelectorAll(".category-tile[data-group-id]").forEach((el) => el.remove());
+
+  categoryGroups.forEach((group) => {
+    const tile = document.createElement("div");
+    tile.className = "category-tile";
+    tile.dataset.groupId = group.id;
+    tile.setAttribute("role", "listitem");
+    tile.tabIndex = 0;
+    tile.textContent = group.name;
+    tile.addEventListener("click", () => openCategoryPicker(group, tile));
+    categoryTiles.appendChild(tile);
+  });
+}
+
+async function loadCategoryTiles() {
+  try {
+    const response = await fetch("/api/categories", { credentials: "include" });
+    if (!response.ok) return;
+    categoryGroups = await response.json();
+    renderCategoryTiles();
+  } catch (error) {
+    console.error(error);
+  }
+}
 
 function initCategoryFilter() {
-  Object.keys(categoryMap).forEach((id) => {
-    const el = document.getElementById(id);
-    if (!el) return;
-    el.addEventListener("click", () => {
-      document.querySelectorAll(".categories li").forEach((li) => {
-        li.classList.remove("active-category");
-      });
-      el.classList.add("active-category");
-      activeCategory = categoryMap[id];
-      loadFeed(activeCategory);
-    });
-  });
+  if (allCategoriesTile) {
+    allCategoriesTile.addEventListener("click", () => selectCategory("all", allCategoriesTile));
+  }
 }
 
 // =====================================================

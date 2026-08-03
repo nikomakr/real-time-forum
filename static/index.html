@@ -3,266 +3,309 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>RentForum | UK Rental Advice Community</title>
+    <title>RentForum | UK Renters Community</title>
     <link rel="stylesheet" href="style.css" id="theme-style" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   </head>
   <body>
+    <!-- ======================== SVG SPRITE — define all icons once here, reference anywhere with <use href="#id"> ========================= -->
+    <svg xmlns="http://www.w3.org/2000/svg" class="screen-reader" aria-hidden="true" focusable="false">
+      <defs>
+        <symbol id="icon-home" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+          <polyline points="9 22 9 12 15 12 15 22"/>
+        </symbol>
+        <symbol id="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+        </symbol>
+        <symbol id="icon-bell" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+        </symbol>
+        <symbol id="icon-logout" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+          <polyline points="16 17 21 12 16 7"/>
+          <line x1="21" y1="12" x2="9" y2="12"/>
+        </symbol>
+        <symbol id="icon-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="3" y1="6" x2="21" y2="6"/>
+          <line x1="3" y1="12" x2="21" y2="12"/>
+          <line x1="3" y1="18" x2="21" y2="18"/>
+        </symbol>
+        <symbol id="icon-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="5" x2="12" y2="19"/>
+          <line x1="5" y1="12" x2="19" y2="12"/>
+        </symbol>
+        <symbol id="icon-send" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="22" y1="2" x2="11" y2="13"/>
+          <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+        </symbol>
+        <symbol id="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"/>
+          <line x1="6" y1="6" x2="18" y2="18"/>
+        </symbol>
+        <symbol id="icon-user" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </symbol>
+        <symbol id="icon-settings" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </symbol>
+        <symbol id="icon-message-square" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+        </symbol>
+        <symbol id="icon-folder" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+        </symbol>
+        <symbol id="icon-thumbs-up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/>
+          <path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/>
+        </symbol>
+        <symbol id="icon-chevron-up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="18 15 12 9 6 15"/>
+        </symbol>
+        <symbol id="icon-dot" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="10" fill="currentColor"/>
+        </symbol>
+        <symbol id="icon-mail" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+          <polyline points="22,6 12,13 2,6"/>
+        </symbol>
+      </defs>
+    </svg>
     <!-- ACCESSIBILITY -->
-    <a href="#forum-page" class="skip-link">Skip to main content</a>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
     <div aria-live="polite" aria-atomic="true" class="screen-reader"></div>
-
     <!-- ======================================================= LOGIN PAGE ======================================================= -->
-    <section id="login-page" class="page active">
+    <section id="login-page" class="page active" aria-labelledby="login-heading">
       <div class="auth-container">
         <div class="auth-left">
-          <h1>RentForum</h1>
+          <h1 id="login-heading">RentForum</h1>
           <p class="subtitle">
             Helping tenants and landlords across the UK discuss renting,
             benefits, legal advice and housing in real time.
           </p>
-          <form id="loginForm">
-            <label>Email or Nickname</label>
+          <form id="loginForm" action="#" method="post" novalidate>
+            <label for="login-username">Email or Nickname</label>
             <input
               type="text"
               id="login-username"
+              name="identifier"
               placeholder="Enter email or nickname"
+              autocomplete="username"
               required
             />
-            <label>Password</label>
+            <label for="login-password">Password</label>
             <input
               type="password"
               id="login-password"
+              name="password"
               placeholder="Enter password"
+              autocomplete="current-password"
               required
             />
-            <button type="submit" id="loginButton" class="primary-btn">
-              Login
-            </button>
+            <button type="submit" id="loginButton" class="primary-btn">Login</button>
             <p class="switch-page">
               Don't have an account?
               <a href="#" id="show-register">Register</a>
             </p>
           </form>
         </div>
-        <div class="auth-right">
+        <div class="auth-right" aria-hidden="true">
           <div class="hero-text">
             <h2>Find trusted rental advice.</h2>
-            <p>
-              Join discussions about renting, deposits, housing benefits, legal
-              rights and much more.
-            </p>
+            <p>Join discussions about renting, deposits, housing benefits, legal rights and much more.</p>
           </div>
         </div>
       </div>
     </section>
-
     <!-- ======================================================= REGISTER PAGE ======================================================= -->
-    <section id="register-page" class="page hidden">
+    <section id="register-page" class="page hidden" aria-labelledby="register-heading">
       <div class="auth-container">
         <div class="auth-left">
-          <h1>Create Account</h1>
+          <h1 id="register-heading">Create Account</h1>
           <p class="subtitle">Become part of the RentForum community.</p>
-          <form id="registerForm">
-            <label>Nickname</label>
-            <input type="text" id="nickname" required />
-            <label>First Name</label>
-            <input type="text" id="first-name" required />
-            <label>Last Name</label>
-            <input type="text" id="last-name" required />
-            <label>Email</label>
-            <input type="email" id="email" required />
-            <label>Password</label>
-            <input type="password" id="password" required />
-            <label>Age</label>
-            <input type="number" id="age" min="16" required />
-            <label>Gender</label>
-            <select id="gender">
+          <form id="registerForm" action="#" method="post" novalidate>
+            <label for="nickname">Nickname</label>
+            <input type="text" id="nickname" name="nickname" autocomplete="username" required />
+            <label for="first-name">First Name</label>
+            <input type="text" id="first-name" name="first_name" autocomplete="given-name" required />
+            <label for="last-name">Last Name</label>
+            <input type="text" id="last-name" name="last_name" autocomplete="family-name" required />
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" autocomplete="email" required />
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" autocomplete="new-password" required />
+            <label for="age">Age</label>
+            <input type="number" id="age" name="age" min="16" required />
+            <label for="gender">Gender</label>
+            <select id="gender" name="gender" required>
               <option value="">Select</option>
-              <option>Female</option>
-              <option>Male</option>
-              <option>Non-binary</option>
-              <option>Prefer not to say</option>
+              <option value="Female">Female</option>
+              <option value="Male">Male</option>
+              <option value="Non-binary">Non-binary</option>
+              <option value="Prefer not to say">Prefer not to say</option>
             </select>
-            <button type="submit" id="registerButton" class="primary-btn">
-              Create Account
-            </button>
+            <button type="submit" id="registerButton" class="primary-btn">Create Account</button>
             <p class="switch-page">
               Already have an account?
               <a href="#" id="show-login">Login</a>
             </p>
           </form>
         </div>
-        <div class="auth-right">
+        <div class="auth-right" aria-hidden="true">
           <div class="hero-text">
             <h2>Join thousands of UK renters.</h2>
-            <p>
-              Ask questions, help others and chat privately with members in real
-              time.
-            </p>
+            <p>Ask questions, help others and chat privately with members in real time.</p>
           </div>
         </div>
       </div>
     </section>
-
     <!-- ======================================================= FORUM PAGE ======================================================= -->
     <section id="forum-page" class="page hidden">
-      <header>
-        <div class="logo">🏠 RentForum</div>
-        <nav class="main-nav">
+      <header role="banner">
+        <div class="logo" aria-label="RentForum home">
+          <svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-home"/></svg>
+          RentForum
+        </div>
+        <nav class="main-nav" aria-label="Main navigation">
           <a id="homeLink" href="#">Home</a>
           <a id="categoriesLink" href="#">Categories</a>
           <a id="messagesLink" href="#">Messages</a>
           <a id="aboutLink" href="#">About</a>
         </nav>
         <div class="header-right">
-          <input
-            type="search"
-            id="searchInput"
-            placeholder="Search discussions..."
-            autocomplete="off"
-          />
-          <button id="themeToggleButton" aria-label="Toggle dark mode">🌙</button>
-          <button id="notificationButton" aria-label="Notifications">🔔</button>
+          <label for="searchInput" class="screen-reader">Search discussions</label>
+          <input type="search" id="searchInput" placeholder="Search discussions..." autocomplete="off" aria-label="Search discussions" />
+          <button type="button" id="themeToggleButton" aria-label="Toggle dark mode">
+            <svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-moon"/></svg>
+          </button>
+          <button type="button" id="notificationButton" aria-label="Notifications" aria-haspopup="true" aria-expanded="false">
+            <svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-bell"/></svg>
+          </button>
           <div class="profile">
             <span id="username">Guest</span>
-            <button id="logoutButton" class="secondary-btn">Logout</button>
+            <button type="button" id="logoutButton" class="secondary-btn">
+              <svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-logout"/></svg>
+              Logout
+            </button>
           </div>
-          <button
-            id="mobileMenuToggle"
-            class="mobile-menu-toggle"
-            aria-label="Toggle menu"
-          >☰</button>
+          <button type="button" id="mobileMenuToggle" class="mobile-menu-toggle" aria-label="Toggle navigation menu" aria-haspopup="true" aria-expanded="false">
+            <svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-menu"/></svg>
+          </button>
         </div>
       </header>
-
       <div class="main-layout">
-
-        <!-- LEFT SIDEBAR -->
-        <aside class="sidebar">
-          <h3>Categories</h3>
-          <ul class="categories">
-            <li id="category-all" class="active-category">All Discussions</li>
-            <li id="category-england">England</li>
-            <li id="category-wales">Wales</li>
-            <li id="category-scotland">Scotland</li>
-            <li id="category-ni">N. Ireland</li>
-            <li id="category-benefits">Benefits</li>
-            <li id="category-legal">Legal Advice</li>
-            <li id="category-social">Social Housing</li>
-            <li id="category-private">Private Renting</li>
-          </ul>
-          <button id="new-post">+ New Discussion</button>
+        <aside class="sidebar" aria-label="Discussion categories">
+          <h2>Categories</h2>
+          <div class="category-tiles" id="categoryTiles" role="list">
+            <div class="category-tile active-category" id="category-all" role="listitem" tabindex="0">All Discussions</div>
+          </div>
+          <button type="button" id="new-post" class="primary-btn">
+            <svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-plus"/></svg>
+            New Discussion
+          </button>
         </aside>
-
-        <!-- MAIN DISCUSSION FEED -->
-        <main class="feed">
-          <section class="feed-header">
-            <div>
-              <h2>Recent Discussions</h2>
-              <p>
-                Browse the latest discussions from renters and landlords across
-                the UK.
-              </p>
-            </div>
-          </section>
-          <!-- Posts rendered here by app.js -->
-          <section class="discussion-list" id="discussionList"></section>
+        <main id="main-content" class="feed">
+          <div class="feed-header">
+            <h2>Recent Discussions</h2>
+            <p>Browse the latest discussions from renters and landlords across the UK.</p>
+          </div>
+          <section class="discussion-list" id="discussionList" aria-label="Discussion feed" aria-live="polite"></section>
         </main>
-
-        <!-- RIGHT SIDEBAR -->
-        <aside class="chat-sidebar">
+        <aside class="chat-sidebar" aria-label="Online members and private chat">
           <div class="members-panel">
-            <h3>Online Members</h3>
-            <ul class="user-list" id="onlineList"></ul>
-            <h3>Offline</h3>
-            <ul class="user-list" id="offlineList"></ul>
+            <h2>Online Members</h2>
+            <ul class="user-list" id="onlineList" aria-label="Online members"></ul>
+            <h2>Offline</h2>
+            <ul class="user-list" id="offlineList" aria-label="Offline members"></ul>
           </div>
           <div class="chat-panel">
             <div class="chat-header">
-              <h3>Private Messages</h3>
-              <span class="chat-status">Connected</span>
+              <h2>Private Messages</h2>
+              <span class="chat-status" aria-live="polite">Connected</span>
             </div>
-            <div class="chat-window" id="chatWindow"></div>
-            <form id="messageForm">
-              <input
-                type="text"
-                id="messageInput"
-                placeholder="Type a message..."
-                maxlength="500"
-                autocomplete="off"
-              />
-              <button type="submit" id="sendMessageButton" class="primary-btn">
-                Send
+            <div class="chat-window" id="chatWindow" role="log" aria-label="Chat messages" aria-live="polite"></div>
+            <form id="messageForm" action="#" method="post" novalidate aria-label="Send a message">
+              <label for="messageInput" class="screen-reader">Type a message</label>
+              <input type="text" id="messageInput" placeholder="Type a message..." maxlength="500" autocomplete="off" />
+              <button type="submit" id="sendMessageButton" aria-label="Send message">
+                <svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-send"/></svg>
               </button>
             </form>
           </div>
         </aside>
 
       </div>
-
-      <!-- NOTIFICATION DROPDOWN -->
-      <div id="notificationPanel" class="dropdown hidden">
-        <div class="dropdown-header">
-          <h3>Notifications</h3>
-        </div>
+      <div id="notificationPanel" class="dropdown hidden" role="dialog" aria-label="Notifications" aria-modal="false">
+        <div class="dropdown-header"><h3>Notifications</h3></div>
         <ul class="notification-list" id="notificationList"></ul>
       </div>
-
-      <!-- PROFILE DROPDOWN -->
-      <div id="profileDropdown" class="dropdown hidden">
+      <div id="profileDropdown" class="dropdown hidden" role="dialog" aria-label="Profile menu" aria-modal="false">
         <ul>
-          <li>👤 My Profile</li>
-          <li>⚙ Settings</li>
-          <li>🌙 Dark Mode</li>
-          <li id="logoutDropdown">🚪 Logout</li>
+          <li><button type="button"><svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-user"/></svg> My Profile</button></li>
+          <li><button type="button"><svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-settings"/></svg> Settings</button></li>
+          <li><button type="button"><svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-moon"/></svg> Dark Mode</button></li>
+          <li><button type="button" id="logoutDropdown"><svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-logout"/></svg> Logout</button></li>
         </ul>
       </div>
 
-      <!-- MOBILE MENU -->
-      <nav id="mobileMenu" class="mobile-menu hidden">
-        <button class="mobile-link">🏠 Home</button>
-        <button class="mobile-link">📂 Categories</button>
-        <button class="mobile-link">💬 Messages</button>
-        <button class="mobile-link">🔔 Notifications</button>
-        <button class="mobile-link">👤 Profile</button>
-        <button class="mobile-link">🚪 Logout</button>
+      <nav id="mobileMenu" class="mobile-menu hidden" aria-label="Mobile navigation">
+        <button type="button" class="mobile-link"><svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-home"/></svg> Home</button>
+        <button type="button" class="mobile-link"><svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-folder"/></svg> Categories</button>
+        <button type="button" class="mobile-link"><svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-message-square"/></svg> Messages</button>
+        <button type="button" class="mobile-link"><svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-bell"/></svg> Notifications</button>
+        <button type="button" class="mobile-link"><svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-user"/></svg> Profile</button>
+        <button type="button" class="mobile-link"><svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-logout"/></svg> Logout</button>
       </nav>
 
-      <!-- SOCKET STATUS -->
-      <div id="socketStatus" class="socket-status">🟢 Connected</div>
-
-      <!-- ONLINE USER COUNT -->
-      <div id="onlineCounter" class="online-counter">
-        Online Users: <strong>0</strong>
+      <div id="socketStatus" class="socket-status" role="status" aria-live="polite">
+        <svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-dot"/></svg>
+        Connected
       </div>
 
-      <!-- SEARCH RESULTS -->
-      <div id="searchResults" class="hidden">
+      <div id="onlineCounter" class="online-counter" aria-live="polite">Online: <strong>0</strong></div>
+
+      <div id="searchResults" class="hidden" role="region" aria-label="Search results" aria-live="polite">
         <h3>Search Results</h3>
         <div id="searchResultsList"></div>
       </div>
 
-      <!-- BACK TO TOP -->
-      <button id="backToTop">↑</button>
-
+      <button type="button" id="backToTop" aria-label="Back to top">
+        <svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-chevron-up"/></svg>
+      </button>
     </section>
 
-    <!-- ========================================== CREATE DISCUSSION MODAL ========================================== -->
-    <div id="createDiscussionModal" class="modal hidden">
+    <!-- ======================================================= FOOTER ======================================================= -->
+    <footer role="contentinfo">
+      <div class="footer-brand">
+        <svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-home"/></svg>
+        RentForum
+      </div>
+      <nav class="footer-links" aria-label="Footer links">
+        <a href="#">Forum Rules</a>
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Use</a>
+        <a href="#">Contact Us</a>
+      </nav>
+      <p class="copyright">© 2026 RentForum. All rights reserved.</p>
+    </footer>
+
+    <!-- CREATE DISCUSSION MODAL -->
+    <div id="createDiscussionModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="createDiscussionHeading">
       <div class="modal-content">
-        <button class="close-modal">&times;</button>
-        <h2>Create New Discussion</h2>
-        <form id="discussionForm">
+        <button type="button" class="close-modal" aria-label="Close">
+          <svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-x"/></svg>
+        </button>
+        <h2 id="createDiscussionHeading">Create New Discussion</h2>
+        <form id="discussionForm" action="#" method="post" novalidate>
           <label for="discussionTitle">Title</label>
-          <input type="text" id="discussionTitle" maxlength="150" required />
+          <input type="text" id="discussionTitle" name="title" maxlength="150" required />
           <label for="discussionCategory">Category</label>
-          <select id="discussionCategory">
+          <select id="discussionCategory" name="category_id" required>
             <option value="">Select a category</option>
             <optgroup label="Country">
               <option value="cat-001">England</option>
@@ -312,111 +355,73 @@
             </optgroup>
           </select>
           <label for="discussionBody">Discussion</label>
-          <textarea
-            id="discussionBody"
-            rows="8"
-            maxlength="5000"
-            placeholder="Describe your issue or share your experience..."
-            required
-          ></textarea>
-          <button type="submit" id="createDiscussionButton" class="primary-btn">
-            Post Discussion
-          </button>
+          <textarea id="discussionBody" name="content" rows="8" maxlength="5000" placeholder="Describe your issue or share your experience..." required></textarea>
+          <button type="submit" id="createDiscussionButton" class="primary-btn">Post Discussion</button>
         </form>
       </div>
     </div>
-
-    <!-- ========================================== VIEW DISCUSSION MODAL ========================================== -->
-    <div id="discussionModal" class="modal hidden">
+    <!-- VIEW DISCUSSION MODAL -->
+    <div id="discussionModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="discussionHeading">
       <div class="modal-content large">
-        <button class="close-modal">&times;</button>
+        <button type="button" class="close-modal" aria-label="Close">
+          <svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-x"/></svg>
+        </button>
         <span class="category england"></span>
         <h2 id="discussionHeading"></h2>
         <div class="discussion-meta"></div>
-        <div class="discussion-content">
-          <p></p>
-        </div>
+        <div class="discussion-content"><p></p></div>
         <hr />
-        <section class="comments">
+        <section class="comments" aria-label="Replies">
           <h3>Replies</h3>
-          <!-- Comments rendered here by app.js -->
-          <div id="commentsContainer"></div>
-          <form id="commentForm">
+          <div id="commentsContainer" aria-live="polite"></div>
+          <form id="commentForm" action="#" method="post" novalidate aria-label="Post a reply">
             <label for="commentText">Write a reply</label>
-            <textarea id="commentText" rows="5" required></textarea>
-            <button type="submit" id="replyButton" class="primary-btn">
-              Post Reply
-            </button>
+            <textarea id="commentText" name="content" rows="5" required></textarea>
+            <button type="submit" id="replyButton" class="primary-btn">Post Reply</button>
           </form>
         </section>
       </div>
     </div>
-
-    <!-- ========================================== LOADING SPINNER ========================================== -->
-    <div id="loadingOverlay" class="hidden">
+    <!-- CATEGORY PICKER MODAL -->
+    <div id="categoryPickerModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="categoryPickerHeading">
+      <div class="modal-content">
+        <button type="button" class="close-modal" aria-label="Close">
+          <svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-x"/></svg>
+        </button>
+        <h2 id="categoryPickerHeading">Choose a category</h2>
+        <ul class="category-picker-list" id="categoryPickerList" role="list"></ul>
+      </div>
+    </div>
+    <!-- LOADING SPINNER -->
+    <div id="loadingOverlay" class="hidden" role="status" aria-label="Loading">
       <div class="spinner"></div>
     </div>
-
-    <!-- ========================================== TOAST MESSAGE ========================================== -->
-    <div id="toast" class="hidden">Action completed successfully.</div>
-
-    <!-- ========================================== EMPTY STATES ========================================== -->
-    <section id="emptyPosts" class="empty-state hidden">
-      <span class="empty-icon">💬</span>
+    <!-- TOAST MESSAGE -->
+    <div id="toast" class="hidden" role="status" aria-live="polite">Action completed successfully.</div>
+    <!-- EMPTY STATES -->
+    <div id="emptyPosts" class="empty-state hidden">
+      <svg class="empty-icon" aria-hidden="true" focusable="false"><use href="#icon-message-square"/></svg>
       <h2>No discussions yet</h2>
       <p>Be the first member to start a discussion.</p>
-      <button class="primary-btn">Create Discussion</button>
-    </section>
-
-    <section id="emptyMessages" class="empty-state hidden">
-      <span class="empty-icon">✉️</span>
+      <button type="button" class="primary-btn">Create Discussion</button>
+    </div>
+    <div id="emptyMessages" class="empty-state hidden">
+      <svg class="empty-icon" aria-hidden="true" focusable="false"><use href="#icon-mail"/></svg>
       <h2>No messages</h2>
       <p>Start chatting with another member.</p>
-    </section>
+    </div>
 
-    <!-- ========================================== FOOTER ========================================== -->
-    <footer>
-      <div class="footer-content">
-        <div>
-          <h3>🏠 RentForum</h3>
-          <p>
-            A UK community where tenants and landlords can ask questions, share
-            experiences and receive advice in real time.
-          </p>
-        </div>
-        <div>
-          <h4>Categories</h4>
-          <ul>
-            <li>England</li>
-            <li>Wales</li>
-            <li>Scotland</li>
-            <li>N. Ireland</li>
-            <li>Benefits</li>
-            <li>Legal Advice</li>
-            <li>Social Housing</li>
-            <li>Private Renting</li>
-          </ul>
-        </div>
-        <div>
-          <h4>Community</h4>
-          <ul>
-            <li>Forum Rules</li>
-            <li>Privacy Policy</li>
-            <li>Terms of Use</li>
-            <li>Contact Us</li>
-          </ul>
-        </div>
-      </div>
-      <div class="copyright">© 2026 RentForum. All rights reserved.</div>
-    </footer>
-
-    <!-- ========================================== USER PROFILE MODAL ========================================== -->
-    <div id="profileModal" class="modal hidden">
+    <!-- USER PROFILE MODAL -->
+    <div id="profileModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="profileModalHeading">
       <div class="modal-content">
-        <button class="close-modal">&times;</button>
-        <h2>My Profile</h2>
+        <button type="button" class="close-modal" aria-label="Close">
+          <svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-x"/></svg>
+        </button>
+        <h2 id="profileModalHeading">My Profile</h2>
         <div class="profile-card">
-          <div class="profile-avatar">👤</div>
+          <div class="profile-avatar" aria-hidden="true">
+            <svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-user"/></svg>
+          </div>
           <h3 id="profileName">Guest User</h3>
           <p id="profileEmail">guest@email.com</p>
           <div class="profile-stats">
@@ -427,25 +432,30 @@
         </div>
       </div>
     </div>
-
-    <!-- ========================================== SETTINGS MODAL ========================================== -->
-    <div id="settingsModal" class="modal hidden">
+    <!-- SETTINGS MODAL -->
+    <div id="settingsModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="settingsModalHeading">
       <div class="modal-content">
-        <button class="close-modal">&times;</button>
-        <h2>Settings</h2>
-        <label>Theme</label>
+        <button type="button" class="close-modal" aria-label="Close">
+          <svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-x"/></svg>
+        </button>
+        <h2 id="settingsModalHeading">Settings</h2>
+        <label for="themeSelect">Theme</label>
         <select id="themeSelect">
-          <option>Light</option>
-          <option>Dark</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
         </select>
-        <label>Notifications</label>
-        <input type="checkbox" checked />
-        <label>Show Online Status</label>
-        <input type="checkbox" checked />
+        <div class="setting-row">
+          <label for="notificationsToggle">Notifications</label>
+          <input type="checkbox" id="notificationsToggle" checked />
+        </div>
+        <div class="setting-row">
+          <label for="onlineStatusToggle">Show Online Status</label>
+          <input type="checkbox" id="onlineStatusToggle" checked />
+        </div>
       </div>
     </div>
 
-    <!-- ========================================== JAVASCRIPT TEMPLATES ========================================== -->
+    <!-- JAVASCRIPT TEMPLATES -->
     <template id="discussionTemplate">
       <article class="discussion-card">
         <span class="category"></span>
@@ -453,13 +463,17 @@
         <div class="discussion-meta"></div>
         <p class="discussion-preview"></p>
         <div class="discussion-footer">
-          <button class="like-btn">👍</button>
-          <button class="comment-btn">💬 0</button>
-          <button class="read-btn">Read Discussion</button>
+          <button type="button" class="like-btn" aria-label="Like this discussion">
+            <svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-thumbs-up"/></svg>
+          </button>
+          <button type="button" class="comment-btn" aria-label="View comments">
+            <svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-message-square"/></svg>
+            0
+          </button>
+          <button type="button" class="read-btn">Read Discussion</button>
         </div>
       </article>
     </template>
-
     <template id="messageTemplate">
       <div class="message received">
         <span class="sender"></span>
@@ -467,7 +481,6 @@
         <small></small>
       </div>
     </template>
-
     <template id="commentTemplate">
       <article class="comment">
         <strong></strong>
@@ -475,8 +488,6 @@
         <small></small>
       </article>
     </template>
-
-    <!-- JAVASCRIPT -->
     <script src="app.js"></script>
   </body>
 </html>
