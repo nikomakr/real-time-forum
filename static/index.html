@@ -13,7 +13,7 @@
     />
   </head>
   <body>
- 
+
     <!-- SVG SPRITE -->
     <svg xmlns="http://www.w3.org/2000/svg" class="screen-reader" aria-hidden="true" focusable="false">
       <defs>
@@ -80,11 +80,11 @@
         </symbol>
       </defs>
     </svg>
- 
+
     <!-- ACCESSIBILITY -->
     <a href="#main-content" class="skip-link">Skip to main content</a>
     <div aria-live="polite" aria-atomic="true" class="screen-reader"></div>
- 
+
     <!-- LOGIN PAGE -->
     <section id="login-page" class="page active" aria-labelledby="login-heading">
       <div class="auth-container">
@@ -108,7 +108,7 @@
         </div>
       </div>
     </section>
- 
+
     <!-- REGISTER PAGE -->
     <section id="register-page" class="page hidden" aria-labelledby="register-heading">
       <div class="auth-container">
@@ -148,10 +148,10 @@
         </div>
       </div>
     </section>
- 
+
     <!-- FORUM PAGE -->
     <section id="forum-page" class="page hidden">
- 
+
       <header role="banner">
         <div class="logo" aria-label="RentForum home">
           <svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-home"/></svg>
@@ -184,9 +184,9 @@
           </button>
         </div>
       </header>
- 
+
       <div class="main-layout">
- 
+
         <!-- LEFT SIDEBAR — categories loaded from API -->
         <aside class="sidebar" aria-label="Discussion categories">
           <h2>Categories</h2>
@@ -202,7 +202,7 @@
             New Discussion
           </button>
         </aside>
- 
+
         <!-- MAIN FEED -->
         <main id="main-content" class="feed">
           <div class="feed-header">
@@ -211,10 +211,10 @@
           </div>
           <section class="discussion-list" id="discussionList" aria-label="Discussion feed" aria-live="polite"></section>
         </main>
- 
+
         <!-- RIGHT SIDEBAR — members and chat -->
         <aside class="chat-sidebar" aria-label="Online members and private chat">
- 
+
           <div class="members-panel">
             <h2>Online Members</h2>
             <!-- User rows injected here by app.js from GET /api/users -->
@@ -222,7 +222,7 @@
             <h2>Offline</h2>
             <ul class="user-list" id="offlineList" aria-label="Offline members"></ul>
           </div>
- 
+
           <div class="chat-panel">
             <div class="chat-header">
               <!-- id="chatHeading" lets app.js update it with the selected user's name -->
@@ -245,17 +245,17 @@
               </button>
             </form>
           </div>
- 
+
         </aside>
- 
+
       </div>
- 
+
       <!-- NOTIFICATION DROPDOWN -->
       <div id="notificationPanel" class="dropdown hidden" role="dialog" aria-label="Notifications" aria-modal="false">
         <div class="dropdown-header"><h3>Notifications</h3></div>
         <ul class="notification-list" id="notificationList"></ul>
       </div>
- 
+
       <!-- PROFILE DROPDOWN -->
       <div id="profileDropdown" class="dropdown hidden" role="dialog" aria-label="Profile menu" aria-modal="false">
         <ul>
@@ -265,7 +265,7 @@
           <li><button type="button" id="logoutDropdown"><svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-logout"/></svg> Logout</button></li>
         </ul>
       </div>
- 
+
       <!-- MOBILE MENU -->
       <nav id="mobileMenu" class="mobile-menu hidden" aria-label="Mobile navigation">
         <button type="button" class="mobile-link"><svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-home"/></svg> Home</button>
@@ -275,23 +275,23 @@
         <button type="button" class="mobile-link"><svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-user"/></svg> Profile</button>
         <button type="button" class="mobile-link"><svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-logout"/></svg> Logout</button>
       </nav>
- 
+
       <!-- ONLINE USER COUNT -->
       <div id="onlineCounter" class="online-counter" aria-live="polite">Online: <strong>0</strong></div>
- 
+
       <!-- SEARCH RESULTS -->
       <div id="searchResults" class="hidden" role="region" aria-label="Search results" aria-live="polite">
         <h3>Search Results</h3>
         <div id="searchResultsList"></div>
       </div>
- 
+
       <!-- BACK TO TOP -->
       <button type="button" id="backToTop" aria-label="Back to top">
         <svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-chevron-up"/></svg>
       </button>
- 
+
     </section>
- 
+
     <!-- FOOTER -->
     <footer role="contentinfo">
       <div class="footer-brand">
@@ -306,7 +306,7 @@
       </nav>
       <p class="copyright">© 2026 RentForum. All rights reserved.</p>
     </footer>
- 
+
     <!-- CREATE DISCUSSION MODAL -->
     <div id="createDiscussionModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="createDiscussionHeading">
       <div class="modal-content">
@@ -373,7 +373,7 @@
         </form>
       </div>
     </div>
- 
+
     <!-- VIEW DISCUSSION MODAL -->
     <div id="discussionModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="discussionHeading">
       <div class="modal-content large">
@@ -396,7 +396,7 @@
         </section>
       </div>
     </div>
- 
+
     <!-- CATEGORY PICKER MODAL — Epic 8 / dynamic categories -->
     <div id="categoryPickerModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="categoryPickerHeading">
       <div class="modal-content">
@@ -408,15 +408,15 @@
         <ul class="category-picker-list" id="categoryPickerList" role="list"></ul>
       </div>
     </div>
- 
+
     <!-- LOADING SPINNER -->
     <div id="loadingOverlay" class="hidden" role="status" aria-label="Loading">
       <div class="spinner"></div>
     </div>
- 
+
     <!-- TOAST MESSAGE -->
     <div id="toast" class="hidden" role="status" aria-live="polite">Action completed successfully.</div>
- 
+
     <!-- EMPTY STATES -->
     <div id="emptyPosts" class="empty-state hidden">
       <svg class="empty-icon" aria-hidden="true" focusable="false"><use href="#icon-message-square"/></svg>
@@ -429,7 +429,7 @@
       <h2>No messages</h2>
       <p>Start chatting with another member.</p>
     </div>
- 
+
     <!-- USER PROFILE MODAL -->
     <div id="profileModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="profileModalHeading">
       <div class="modal-content">
@@ -451,7 +451,7 @@
         </div>
       </div>
     </div>
- 
+
     <!-- SETTINGS MODAL -->
     <div id="settingsModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="settingsModalHeading">
       <div class="modal-content">
@@ -474,7 +474,7 @@
         </div>
       </div>
     </div>
- 
+
     <!-- JAVASCRIPT TEMPLATES -->
     <template id="discussionTemplate">
       <article class="discussion-card">
@@ -493,7 +493,7 @@
         </div>
       </article>
     </template>
- 
+
     <template id="messageTemplate">
       <div class="message received">
         <span class="sender"></span>
@@ -501,7 +501,7 @@
         <small></small>
       </div>
     </template>
- 
+
     <template id="commentTemplate">
       <article class="comment">
         <strong></strong>
@@ -509,7 +509,7 @@
         <small></small>
       </article>
     </template>
- 
+
     <script src="app.js"></script>
   </body>
 </html>
