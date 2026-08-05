@@ -1803,6 +1803,7 @@ footer {
 }
 /* ========================================================== MEMBERS PANEL HEADINGS ========================================================== */
 .members-panel h2 {
+  flex: 0 0 auto;
   font-size: 13px;
   font-weight: 700;
   text-transform: uppercase;
@@ -1855,11 +1856,31 @@ footer {
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
 }
 
-/* Members panel now fills the whole sidebar and scrolls internally */
+/* Members panel now fills the whole sidebar. Online/Offline split it 2:1 so
+   there's no dead gap when a list is short, and each scrolls on its own
+   without ever growing past its share when a list is long. */
 .members-panel {
   flex: 1;
   min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+#onlineList,
+#offlineList {
+  max-height: none;
+  min-height: 0;
+  margin-bottom: 0;
   overflow-y: auto;
+}
+
+#onlineList {
+  flex: 2 1 0;
+}
+
+#offlineList {
+  flex: 1 1 0;
 }
 
 /* ========================================================== PRIVATE MESSAGES MODAL ========================================================== */

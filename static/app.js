@@ -1019,6 +1019,35 @@ function connectWebSocket() {
   });
 }
 
+// Safari suspends/closes WebSocket connections on backgrounded tabs and
+// bfcache restores far more aggressively than Chrome/Firefox, and doesn't
+// always fire a timely "close" event when it does — leaving `socket` in a
+// stale state that silently drops incoming notifications. Force a
+// reconnect whenever the tab becomes visible/restored again if the socket
+// isn't actually open.
+function ensureWebSocketAlive() {
+  if (!myUserID) return;
+  if (!socket || socket.readyState === WebSocket.CLOSED) {
+    connectWebSocket();
+  }
+}
+
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible") ensureWebSocketAlive();
+});
+
+window.addEventListener("pageshow", (event) => {
+  // event.persisted === true means the page came back from bfcache, where
+  // the underlying connection is guaranteed closed even if `socket`'s
+  // readyState hasn't caught up yet.
+  if (event.persisted) {
+    if (socket) socket.close();
+    ensureWebSocketAlive();
+  } else {
+    ensureWebSocketAlive();
+  }
+});
+
 function disconnectWebSocket() {
   if (socket) {
     socket.close();
