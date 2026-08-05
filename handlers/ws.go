@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -26,6 +27,7 @@ type incomingMessage struct {
 	Type       string `json:"type"`
 	ReceiverID string `json:"receiver_id"`
 	Content    string `json:"content"`
+	ImageURL   string `json:"image_url"`
 }
 
 func ServeWS(hub *ws.Hub, w http.ResponseWriter, r *http.Request) {
@@ -65,8 +67,15 @@ func handleIncoming(hub *ws.Hub, sender *ws.Client, raw []byte) {
 		return
 	}
 
-	if msg.Type != "chat_message" || msg.ReceiverID == "" || msg.Content == "" {
+	if msg.Type != "chat_message" || msg.ReceiverID == "" || (msg.Content == "" && msg.ImageURL == "") {
 		return
+	}
+
+	// Only ever trust image URLs that point at our own uploads — reject
+	// anything else rather than letting a raw WS client inject arbitrary URLs.
+	imageURL := ""
+	if msg.ImageURL != "" && strings.HasPrefix(msg.ImageURL, "/uploads/") && !strings.Contains(msg.ImageURL, "..") {
+		imageURL = msg.ImageURL
 	}
 
 	// Fetch sender nickname
@@ -87,10 +96,15 @@ func handleIncoming(hub *ws.Hub, sender *ws.Client, raw []byte) {
 
 	now := time.Now().UTC()
 
+	var imageURLColumn any
+	if imageURL != "" {
+		imageURLColumn = imageURL
+	}
+
 	_, err = db.DB.Exec(
-		`INSERT INTO messages (id, sender_id, receiver_id, content, created_at)
-		 VALUES (?, ?, ?, ?, ?)`,
-		msgID, sender.UserID, msg.ReceiverID, msg.Content, now,
+		`INSERT INTO messages (id, sender_id, receiver_id, content, image_url, created_at)
+		 VALUES (?, ?, ?, ?, ?, ?)`,
+		msgID, sender.UserID, msg.ReceiverID, msg.Content, imageURLColumn, now,
 	)
 	if err != nil {
 		log.Printf("[ERROR] [ServeWS insert message]: %v", err)
@@ -103,6 +117,7 @@ func handleIncoming(hub *ws.Hub, sender *ws.Client, raw []byte) {
 		SenderName: senderName,
 		ReceiverID: msg.ReceiverID,
 		Content:    msg.Content,
+		ImageURL:   imageURL,
 		CreatedAt:  now.Format(time.RFC3339),
 	}
 

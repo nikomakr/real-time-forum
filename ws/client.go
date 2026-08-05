@@ -36,6 +36,7 @@ type ChatPayload struct {
 	SenderName string `json:"sender_name"`
 	ReceiverID string `json:"receiver_id"`
 	Content    string `json:"content"`
+	ImageURL   string `json:"image_url,omitempty"`
 	CreatedAt  string `json:"created_at"`
 }
 

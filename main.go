@@ -29,6 +29,8 @@ func main() {
 		}
 	}))
 
+	http.HandleFunc("/api/profile", handlers.RequireAuth(handlers.GetProfile))
+
 	http.HandleFunc("/api/posts", handlers.RequireAuth(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodGet {
 			handlers.GetPosts(w, r)
@@ -56,6 +58,7 @@ func main() {
 	}))
 
 	http.HandleFunc("/api/messages/{id}", handlers.RequireAuth(handlers.GetMessages))
+	http.HandleFunc("/api/messages/upload", handlers.RequireAuth(handlers.UploadImage))
 	http.HandleFunc("/api/users", handlers.RequireAuth(handlers.GetUsers(hub)))
 	http.HandleFunc("/api/categories", handlers.RequireAuth(handlers.GetCategories))
 

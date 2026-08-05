@@ -78,6 +78,9 @@
           <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
           <polyline points="22,6 12,13 2,6"/>
         </symbol>
+        <symbol id="icon-paperclip" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
+        </symbol>
       </defs>
     </svg>
 
@@ -125,7 +128,7 @@
             <label for="email">Email</label>
             <input type="email" id="email" name="email" autocomplete="email" required />
             <label for="password">Password</label>
-            <input type="password" id="password" name="password" autocomplete="new-password" required />
+            <input type="password" id="password" name="password" autocomplete="new-password" minlength="12" required />
             <label for="age">Age</label>
             <input type="number" id="age" name="age" min="16" required />
             <label for="gender">Gender</label>
@@ -153,35 +156,26 @@
     <section id="forum-page" class="page hidden">
 
       <header role="banner">
-        <div class="logo" aria-label="RentForum home">
+        <button type="button" id="logoHomeButton" class="logo" aria-label="RentForum home, back to top">
           <svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-home"/></svg>
           RentForum
-        </div>
-        <nav class="main-nav" aria-label="Main navigation">
-          <a id="homeLink" href="#">Home</a>
-          <a id="categoriesLink" href="#">Categories</a>
-          <a id="messagesLink" href="#">Messages</a>
-          <a id="aboutLink" href="#">About</a>
-        </nav>
+        </button>
         <div class="header-right">
           <label for="searchInput" class="screen-reader">Search discussions</label>
           <input type="search" id="searchInput" placeholder="Search discussions..." autocomplete="off" aria-label="Search discussions" />
-          <button type="button" id="themeToggleButton" aria-label="Toggle dark mode">
-            <svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-moon"/></svg>
-          </button>
           <button type="button" id="notificationButton" aria-label="Notifications" aria-haspopup="true" aria-expanded="false">
             <svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-bell"/></svg>
           </button>
           <div class="profile">
-            <span id="username">Guest</span>
+            <button type="button" id="profileMenuButton" aria-label="Profile menu" aria-haspopup="true" aria-expanded="false">
+              <svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-user"/></svg>
+              <span id="username">Guest</span>
+            </button>
             <button type="button" id="logoutButton" class="secondary-btn">
               <svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-logout"/></svg>
               Logout
             </button>
           </div>
-          <button type="button" id="mobileMenuToggle" class="mobile-menu-toggle" aria-label="Toggle navigation menu" aria-haspopup="true" aria-expanded="false">
-            <svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-menu"/></svg>
-          </button>
         </div>
       </header>
 
@@ -212,8 +206,8 @@
           <section class="discussion-list" id="discussionList" aria-label="Discussion feed" aria-live="polite"></section>
         </main>
 
-        <!-- RIGHT SIDEBAR — members and chat -->
-        <aside class="chat-sidebar" aria-label="Online members and private chat">
+        <!-- RIGHT SIDEBAR — members list; clicking a member opens the private chat modal -->
+        <aside class="chat-sidebar" aria-label="Online members">
 
           <div class="members-panel">
             <h2>Online Members</h2>
@@ -221,29 +215,6 @@
             <ul class="user-list" id="onlineList" aria-label="Online members"></ul>
             <h2>Offline</h2>
             <ul class="user-list" id="offlineList" aria-label="Offline members"></ul>
-          </div>
-
-          <div class="chat-panel">
-            <div class="chat-header">
-              <!-- id="chatHeading" lets app.js update it with the selected user's name -->
-              <h2 id="chatHeading">Private Messages</h2>
-              <span class="chat-status" id="socketStatus" role="status" aria-live="polite">
-                <svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-dot"/></svg>
-                Connected
-              </span>
-            </div>
-            <!-- Messages rendered here by app.js -->
-            <div class="chat-window" id="chatWindow" role="log" aria-label="Chat messages" aria-live="polite">
-              <p class="no-results">Select a member to start chatting.</p>
-            </div>
-            <form id="messageForm" action="#" method="post" novalidate aria-label="Send a message">
-              <label for="messageInput" class="screen-reader">Type a message</label>
-              <!-- disabled until a conversation is opened -->
-              <input type="text" id="messageInput" placeholder="Select a user to chat..." maxlength="500" autocomplete="off" disabled />
-              <button type="submit" id="sendMessageButton" aria-label="Send message" disabled>
-                <svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-send"/></svg>
-              </button>
-            </form>
           </div>
 
         </aside>
@@ -259,22 +230,11 @@
       <!-- PROFILE DROPDOWN -->
       <div id="profileDropdown" class="dropdown hidden" role="dialog" aria-label="Profile menu" aria-modal="false">
         <ul>
-          <li><button type="button"><svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-user"/></svg> My Profile</button></li>
+          <li><button type="button" id="openProfileButton"><svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-user"/></svg> My Profile</button></li>
           <li><button type="button"><svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-settings"/></svg> Settings</button></li>
-          <li><button type="button"><svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-moon"/></svg> Dark Mode</button></li>
           <li><button type="button" id="logoutDropdown"><svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-logout"/></svg> Logout</button></li>
         </ul>
       </div>
-
-      <!-- MOBILE MENU -->
-      <nav id="mobileMenu" class="mobile-menu hidden" aria-label="Mobile navigation">
-        <button type="button" class="mobile-link"><svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-home"/></svg> Home</button>
-        <button type="button" class="mobile-link"><svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-folder"/></svg> Categories</button>
-        <button type="button" class="mobile-link"><svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-message-square"/></svg> Messages</button>
-        <button type="button" class="mobile-link"><svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-bell"/></svg> Notifications</button>
-        <button type="button" class="mobile-link"><svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-user"/></svg> Profile</button>
-        <button type="button" class="mobile-link"><svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-logout"/></svg> Logout</button>
-      </nav>
 
       <!-- ONLINE USER COUNT -->
       <div id="onlineCounter" class="online-counter" aria-live="polite">Online: <strong>0</strong></div>
@@ -306,6 +266,50 @@
       </nav>
       <p class="copyright">© 2026 RentForum. All rights reserved.</p>
     </footer>
+
+    <!-- PRIVATE MESSAGES MODAL — opened by clicking a member in the sidebar -->
+    <div id="messagesModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="chatHeading">
+      <div class="modal-content large messages-modal-content">
+        <button type="button" class="close-modal" aria-label="Close">
+          <svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-x"/></svg>
+        </button>
+        <button type="button" id="logoutFromMessages" class="secondary-btn modal-logout">
+          <svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-logout"/></svg>
+          Logout
+        </button>
+        <div class="chat-header">
+          <!-- id="chatHeading" lets app.js update it with the selected user's name -->
+          <h2 id="chatHeading">Private Messages</h2>
+          <span class="chat-status" id="socketStatus" role="status" aria-live="polite">
+            <svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-dot"/></svg>
+            Connected
+          </span>
+        </div>
+        <!-- Messages rendered here by app.js -->
+        <div class="chat-window" id="chatWindow" role="log" aria-label="Chat messages" aria-live="polite">
+          <p class="no-results">Select a member to start chatting.</p>
+        </div>
+        <div id="imagePreviewContainer" class="image-preview hidden">
+          <img id="imagePreviewThumb" alt="Selected image preview" />
+          <button type="button" id="removeImageButton" aria-label="Remove selected image">
+            <svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-x"/></svg>
+          </button>
+        </div>
+        <form id="messageForm" action="#" method="post" novalidate aria-label="Send a message">
+          <label for="messageInput" class="screen-reader">Type a message</label>
+          <!-- disabled until a conversation is opened -->
+          <input type="text" id="messageInput" placeholder="Select a user to chat..." maxlength="500" autocomplete="off" disabled />
+          <label for="messageImageInput" class="screen-reader">Attach an image</label>
+          <input type="file" id="messageImageInput" class="screen-reader" accept="image/jpeg,image/png,image/gif,image/webp" disabled />
+          <button type="button" id="attachImageButton" aria-label="Attach image" disabled>
+            <svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-paperclip"/></svg>
+          </button>
+          <button type="submit" id="sendMessageButton" aria-label="Send message" disabled>
+            <svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-send"/></svg>
+          </button>
+        </form>
+      </div>
+    </div>
 
     <!-- CREATE DISCUSSION MODAL -->
     <div id="createDiscussionModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="createDiscussionHeading">
@@ -380,6 +384,10 @@
         <button type="button" class="close-modal" aria-label="Close">
           <svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-x"/></svg>
         </button>
+        <button type="button" id="logoutFromDiscussion" class="secondary-btn modal-logout">
+          <svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-logout"/></svg>
+          Logout
+        </button>
         <span class="category england"></span>
         <h2 id="discussionHeading"></h2>
         <div class="discussion-meta"></div>
@@ -444,10 +452,14 @@
           <h3 id="profileName">Guest User</h3>
           <p id="profileEmail">guest@email.com</p>
           <div class="profile-stats">
-            <div><strong>0</strong><span>Posts</span></div>
-            <div><strong>0</strong><span>Comments</span></div>
-            <div><strong>0</strong><span>Likes</span></div>
+            <div><strong id="profileStatPosts">0</strong><span>Posts</span></div>
+            <div><strong id="profileStatComments">0</strong><span>Comments</span></div>
+            <div><strong id="profileStatLikes">0</strong><span>Likes</span></div>
           </div>
+          <button type="button" id="profileLogoutButton" class="secondary-btn">
+            <svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-logout"/></svg>
+            Logout
+          </button>
         </div>
       </div>
     </div>

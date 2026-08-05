@@ -158,9 +158,17 @@ header {
   border-bottom: 1px solid #e4e7ef;
 }
 .logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: none;
+  background: none;
+  padding: 0;
+  font: inherit;
   font-size: 28px;
   font-weight: 700;
   color: #0066cc;
+  cursor: pointer;
 }
 /* ==========================================================  NAVIGATION ========================================================== */
 .main-nav {
@@ -202,19 +210,6 @@ header {
 #notificationButton:hover {
   background: #e7edf8;
 }
-.mobile-menu-toggle {
-  display: none;
-  width: 46px;
-  height: 46px;
-  border-radius: 50%;
-  background: #f5f7fb;
-  font-size: 20px;
-  align-items: center;
-  justify-content: center;
-}
-.mobile-menu-toggle:hover {
-  background: #e7edf8;
-}
 /* ========================================================== PROFILE ========================================================== */
 .profile {
   display: flex;
@@ -223,6 +218,18 @@ header {
 }
 #username {
   font-weight: 600;
+}
+#profileMenuButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  padding: 8px 12px;
+  border-radius: 20px;
+  font-weight: 600;
+}
+#profileMenuButton:hover {
+  background: #f5f7fb;
 }
 /* ==========================================================  MAIN LAYOUT ========================================================== */
 .main-layout {
@@ -240,6 +247,9 @@ header {
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.05);
   position: sticky;
   top: 100px;
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 140px);
 }
 .sidebar h3 {
   margin-bottom: 20px;
@@ -247,7 +257,10 @@ header {
 .category-tiles {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 5px;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
 }
 .category-tile {
   padding: 12px;
@@ -413,6 +426,15 @@ header {
   border-radius: 999px;
   font-size: 13px;
   font-weight: 600;
+}
+/* Reflects whether the person you're chatting with is online, not our own connection */
+.chat-status.online {
+  background: #dcfce7;
+  color: #15803d;
+}
+.chat-status.offline {
+  background: #f3f4f6;
+  color: #6b7280;
 }
 /* ==========================================================  CARD FOOTER ========================================================== */
 .discussion-footer {
@@ -591,6 +613,12 @@ header {
   font-size: 12px;
   opacity: 0.75;
 }
+.message img {
+  display: block;
+  max-width: 100%;
+  border-radius: 10px;
+  margin-top: 6px;
+}
 /* ==========================================================  MESSAGE INPUT ========================================================== */
 .chat-input {
   display: flex;
@@ -612,18 +640,50 @@ header {
 #sendMessageButton:hover {
   background: #0053a8;
 }
+#attachImageButton {
+  background: #f5f7fb;
+  border-radius: 12px;
+  padding: 0 16px;
+}
+#attachImageButton:hover {
+  background: #e7edf8;
+}
+.image-preview {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+}
+.image-preview img {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+.image-preview button {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #f3f4f6;
+}
+.image-preview button:hover {
+  background: #e5e7eb;
+}
 /* ========================================================== SCROLLBAR ========================================================== */
 .user-list::-webkit-scrollbar,
-.chat-window::-webkit-scrollbar {
+.chat-window::-webkit-scrollbar,
+.category-tiles::-webkit-scrollbar {
   width: 8px;
 }
 .user-list::-webkit-scrollbar-thumb,
-.chat-window::-webkit-scrollbar-thumb {
+.chat-window::-webkit-scrollbar-thumb,
+.category-tiles::-webkit-scrollbar-thumb {
   background: #d1d5db;
   border-radius: 10px;
 }
 .user-list::-webkit-scrollbar-thumb:hover,
-.chat-window::-webkit-scrollbar-thumb:hover {
+.chat-window::-webkit-scrollbar-thumb:hover,
+.category-tiles::-webkit-scrollbar-thumb:hover {
   background: #9ca3af;
 }
 /* ==========================================================  MODALS ========================================================== */
@@ -669,6 +729,14 @@ header {
   font-size: 24px;
   line-height: 1;
 }
+.modal-logout {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
 .close-modal:hover {
   background: #e5e7eb;
 }
@@ -700,6 +768,9 @@ header {
   justify-content: center;
   gap: 40px;
   margin-top: 30px;
+}
+#profileLogoutButton {
+  margin: 25px auto 0;
 }
 .profile-stats div {
   text-align: center;
@@ -813,33 +884,6 @@ footer {
 .copyright {
   white-space: nowrap;
 }
-/* ==========================================================  MOBILE NAVIGATION ========================================================== */
-.mobile-menu {
-  position: fixed;
-  top: 80px;
-  left: 0;
-  right: 0;
-  background: #ffffff;
-  border-bottom: 1px solid #e4e7ef;
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
-  display: flex;
-  flex-direction: column;
-  padding: 10px;
-  z-index: 400;
-}
-.mobile-link {
-  background: none;
-  text-align: left;
-  padding: 14px 16px;
-  border-radius: 10px;
-  font-size: 15px;
-  font-weight: 500;
-  color: #374151;
-}
-.mobile-link:hover {
-  background: #eef5ff;
-  color: #0066cc;
-}
 /* ========================================================== RESPONSIVE ========================================================== */
 @media (max-width: 1200px) {
   .main-layout {
@@ -860,6 +904,7 @@ footer {
   .sidebar {
     position: relative;
     top: 0;
+    height: auto;
   }
   .chat-sidebar {
     position: relative;
@@ -868,9 +913,6 @@ footer {
   }
   .main-nav {
     display: none;
-  }
-  .mobile-menu-toggle {
-    display: inline-flex;
   }
 }
 /* ========================================================== MOBILE ========================================================== */
@@ -1299,22 +1341,10 @@ button:disabled {
     height: 20px;
 }
 /* ========================================================== MEMBERS PANEL ========================================================== */
-.members-panel {
-    margin-bottom: 20px;
-    padding-bottom: 20px;
-    border-bottom: 1px solid #e5e7eb;
-}
 .members-panel h3 {
     margin-bottom: 12px;
     font-size: 16px;
     color: #374151;
-}
-/* ========================================================== CHAT PANEL ========================================================== */
-.chat-panel {
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-    min-height: 0;
 }
 /* ========================================================== DROPDOWN ========================================================== */
 .dropdown {
@@ -1486,7 +1516,7 @@ button:disabled {
 .category-tiles {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 4px;
   margin-bottom: 20px;
 }
 
@@ -1820,26 +1850,31 @@ footer {
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
 }
 
-/* Members panel capped so it doesn't crush the chat window */
+/* Members panel now fills the whole sidebar and scrolls internally */
 .members-panel {
-  flex-shrink: 0;
-  max-height: 200px;
-  overflow-y: auto;
-  margin-bottom: 16px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid #e5e7eb;
-}
-
-/* Chat panel takes all remaining vertical space */
-.chat-panel {
-  display: flex;
-  flex-direction: column;
   flex: 1;
   min-height: 0;
+  overflow-y: auto;
+}
+
+/* ========================================================== PRIVATE MESSAGES MODAL ========================================================== */
+/* Private chat now opens in its own modal (instead of the cramped sidebar
+   chat-panel) so there's much more room to read and write messages. */
+.messages-modal-content {
+  display: flex;
+  flex-direction: column;
+  height: 80vh;
+  max-height: calc(100vh - 60px);
+  overflow: hidden;
 }
 
 .chat-header {
   flex-shrink: 0;
+}
+
+/* Clear the close/logout buttons pinned to the modal's top corners */
+.messages-modal-content .chat-header {
+  margin-top: 30px;
 }
 
 /* Chat window fills whatever space is left */
@@ -1885,29 +1920,9 @@ footer {
 
   .chat-sidebar {
     grid-column: 1 / -1;
-    height: 520px;
+    height: auto;
     position: relative;
     top: 0;
-    flex-direction: row;
-    gap: 20px;
-  }
-
-  .members-panel {
-    width: 220px;
-    flex-shrink: 0;
-    max-height: none;
-    height: 100%;
-    overflow-y: auto;
-    border-bottom: none;
-    border-right: 1px solid #e5e7eb;
-    padding-bottom: 0;
-    padding-right: 16px;
-    margin-bottom: 0;
-  }
-
-  .chat-panel {
-    flex: 1;
-    min-width: 0;
   }
 }
 
@@ -1926,19 +1941,8 @@ footer {
 
   .chat-sidebar {
     grid-column: 1;
-    height: 560px;
-    flex-direction: column;
+    height: auto;
     border-radius: 16px;
-  }
-
-  .members-panel {
-    width: auto;
-    max-height: 160px;
-    border-right: none;
-    border-bottom: 1px solid #e5e7eb;
-    padding-right: 0;
-    padding-bottom: 12px;
-    margin-bottom: 12px;
   }
 
   header {
@@ -1962,10 +1966,6 @@ footer {
   .main-nav {
     display: none;
   }
-
-  .mobile-menu-toggle {
-    display: inline-flex;
-  }
 }
 
 /* ========================================================== MOBILE ========================================================== */
@@ -1976,13 +1976,8 @@ footer {
   }
 
   .chat-sidebar {
-    height: 480px;
     padding: 14px;
     border-radius: 14px;
-  }
-
-  .members-panel {
-    max-height: 120px;
   }
 
   .feed-header h2 {
@@ -2053,20 +2048,23 @@ footer {
 /* ========================================================== USER LIST SCROLLBAR ========================================================== */
 .members-panel::-webkit-scrollbar,
 .chat-window::-webkit-scrollbar,
-.user-list::-webkit-scrollbar {
+.user-list::-webkit-scrollbar,
+.category-tiles::-webkit-scrollbar {
   width: 4px;
 }
 
 .members-panel::-webkit-scrollbar-thumb,
 .chat-window::-webkit-scrollbar-thumb,
-.user-list::-webkit-scrollbar-thumb {
+.user-list::-webkit-scrollbar-thumb,
+.category-tiles::-webkit-scrollbar-thumb {
   background: #e5e7eb;
   border-radius: 4px;
 }
 
 .members-panel::-webkit-scrollbar-thumb:hover,
 .chat-window::-webkit-scrollbar-thumb:hover,
-.user-list::-webkit-scrollbar-thumb:hover {
+.user-list::-webkit-scrollbar-thumb:hover,
+.category-tiles::-webkit-scrollbar-thumb:hover {
   background: #d1d5db;
 }
 

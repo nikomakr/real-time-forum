@@ -34,6 +34,7 @@ const gender = document.getElementById("gender");
 // BUTTONS
 // =====================================================
 const logoutButton = document.getElementById("logoutButton");
+const logoHomeButton = document.getElementById("logoHomeButton");
 const showRegister = document.getElementById("show-register");
 const showLogin = document.getElementById("show-login");
 const newPostButton = document.getElementById("new-post");
@@ -112,6 +113,7 @@ async function goToForum() {
     loadFeed(activeCategory),
     loadCategoryTiles(),
     loadUsers(),
+    loadProfile(),
   ]);
 }
 
@@ -155,6 +157,67 @@ async function fetchMyUserID() {
   } catch (error) {
     console.error("[fetchMyUserID]", error);
   }
+}
+
+// =====================================================
+// PROFILE
+// =====================================================
+async function loadProfile() {
+  try {
+    const response = await fetch("/api/profile", { credentials: "include" });
+    if (!response.ok) return;
+    const profile = await response.json();
+
+    const usernameEl = document.getElementById("username");
+    if (usernameEl) usernameEl.textContent = profile.nickname;
+
+    const nameEl = document.getElementById("profileName");
+    if (nameEl) nameEl.textContent = profile.nickname;
+
+    const emailEl = document.getElementById("profileEmail");
+    if (emailEl) emailEl.textContent = profile.email;
+
+    const postsEl = document.getElementById("profileStatPosts");
+    if (postsEl) postsEl.textContent = profile.post_count;
+
+    const commentsEl = document.getElementById("profileStatComments");
+    if (commentsEl) commentsEl.textContent = profile.comment_count;
+
+    const likesEl = document.getElementById("profileStatLikes");
+    if (likesEl) likesEl.textContent = profile.like_count;
+  } catch (error) {
+    console.error("[loadProfile]", error);
+  }
+}
+
+function openProfileModal() {
+  const dropdown = document.getElementById("profileDropdown");
+  if (dropdown) dropdown.classList.add("hidden");
+
+  const modal = document.getElementById("profileModal");
+  if (modal) modal.classList.remove("hidden");
+
+  loadProfile();
+}
+
+const profileMenuButton = document.getElementById("profileMenuButton");
+if (profileMenuButton) {
+  profileMenuButton.addEventListener("click", () => {
+    const dropdown = document.getElementById("profileDropdown");
+    if (dropdown) {
+      const isHidden = dropdown.classList.contains("hidden");
+      dropdown.classList.toggle("hidden");
+      profileMenuButton.setAttribute(
+        "aria-expanded",
+        isHidden ? "true" : "false",
+      );
+    }
+  });
+}
+
+const openProfileButton = document.getElementById("openProfileButton");
+if (openProfileButton) {
+  openProfileButton.addEventListener("click", openProfileModal);
 }
 
 // =====================================================
@@ -212,6 +275,10 @@ function validateRegistration() {
   }
   if (password.value.trim() === "") {
     showRegisterError("Password is required.");
+    return false;
+  }
+  if (password.value.length < 12) {
+    showRegisterError("Password must be at least 12 characters long.");
     return false;
   }
   const ageValue = Number(age.value);
@@ -352,6 +419,32 @@ async function logoutUser() {
 
 if (logoutButton) {
   logoutButton.addEventListener("click", logoutUser);
+}
+
+if (logoHomeButton) {
+  logoHomeButton.addEventListener("click", () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+}
+
+const logoutDropdown = document.getElementById("logoutDropdown");
+if (logoutDropdown) {
+  logoutDropdown.addEventListener("click", logoutUser);
+}
+
+const profileLogoutButton = document.getElementById("profileLogoutButton");
+if (profileLogoutButton) {
+  profileLogoutButton.addEventListener("click", logoutUser);
+}
+
+const logoutFromDiscussion = document.getElementById("logoutFromDiscussion");
+if (logoutFromDiscussion) {
+  logoutFromDiscussion.addEventListener("click", logoutUser);
+}
+
+const logoutFromMessages = document.getElementById("logoutFromMessages");
+if (logoutFromMessages) {
+  logoutFromMessages.addEventListener("click", logoutUser);
 }
 
 // =====================================================
@@ -846,6 +939,7 @@ document.querySelectorAll(".close-modal").forEach((btn) => {
     const picker = document.getElementById("categoryPickerModal");
     if (picker) picker.classList.add("hidden");
     currentPostId = null;
+    resetChatPanel();
   });
 });
 
@@ -855,6 +949,7 @@ document.querySelectorAll(".modal").forEach((modal) => {
     if (event.target !== modal) return;
     modal.classList.add("hidden");
     currentPostId = null;
+    if (modal.id === "messagesModal") resetChatPanel();
   });
 });
 
@@ -867,6 +962,7 @@ let currentChatUserName = null;
 let messageOffset = 0;
 let isLoadingMessages = false;
 let hasMoreMessages = true;
+let selectedImageFile = null;
 
 function connectWebSocket() {
   const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
@@ -875,9 +971,8 @@ function connectWebSocket() {
   socket = new WebSocket(wsURL);
 
   socket.addEventListener("open", () => {
-    const status = document.getElementById("socketStatus");
-    if (status)
-      status.innerHTML = `<svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-dot"/></svg> Connected`;
+    // #socketStatus shows the presence of the person you're chatting with,
+    // not our own connection state — see updateChatStatus().
   });
 
   socket.addEventListener("message", (event) => {
@@ -894,9 +989,6 @@ function connectWebSocket() {
   });
 
   socket.addEventListener("close", () => {
-    const status = document.getElementById("socketStatus");
-    if (status)
-      status.innerHTML = `<svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-dot"/></svg> Disconnected`;
     // Reconnect after 3 seconds if still logged in
     if (myUserID) {
       setTimeout(connectWebSocket, 3000);
@@ -1015,6 +1107,22 @@ function renderUserLists(users) {
   }
 
   updateOnlineCounter(onlineUsers.length);
+
+  // Keep the open conversation's status pill in sync with live presence
+  if (currentChatUserID) {
+    const chatUser = users.find((u) => u.id === currentChatUserID);
+    if (chatUser) updateChatStatus(chatUser.is_online);
+  }
+}
+
+// Reflect whether the person you're chatting with (not you) is online,
+// in the messages modal's status pill.
+function updateChatStatus(isOnline) {
+  const status = document.getElementById("socketStatus");
+  if (!status) return;
+  status.classList.toggle("online", isOnline);
+  status.classList.toggle("offline", !isOnline);
+  status.innerHTML = `<svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-dot"/></svg> ${isOnline ? "Online" : "Offline"}`;
 }
 
 function buildUserListItem(user) {
@@ -1057,15 +1165,27 @@ async function openConversation(user) {
   messageOffset = 0;
   hasMoreMessages = true;
 
+  // Open the private messages modal — plenty of room to read/write,
+  // unlike the old cramped sidebar chat-window.
+  const messagesModal = document.getElementById("messagesModal");
+  if (messagesModal) messagesModal.classList.remove("hidden");
+
   // Update chat heading to show who you are chatting with
   const chatHeading = document.getElementById("chatHeading");
   if (chatHeading) chatHeading.textContent = user.nickname;
 
+  // Show whether this member is currently online
+  updateChatStatus(user.is_online);
+
   // Enable message form
   const messageInput = document.getElementById("messageInput");
   const sendButton = document.getElementById("sendMessageButton");
+  const imageInput = document.getElementById("messageImageInput");
+  const attachButton = document.getElementById("attachImageButton");
   if (messageInput) messageInput.disabled = false;
   if (sendButton) sendButton.disabled = false;
+  if (imageInput) imageInput.disabled = false;
+  if (attachButton) attachButton.disabled = false;
 
   // Clear chat window
   const chatWindow = document.getElementById("chatWindow");
@@ -1082,6 +1202,43 @@ async function openConversation(user) {
 
   await loadMessages(false);
   loadUsers();
+}
+
+// Reset the private chat back to its empty state when the messages modal
+// is closed, so a re-opened conversation always starts fresh and incoming
+// messages while it's closed are treated as "not the open conversation".
+function resetChatPanel() {
+  currentChatUserID = null;
+  currentChatUserName = null;
+
+  const chatHeading = document.getElementById("chatHeading");
+  if (chatHeading) chatHeading.textContent = "Private Messages";
+
+  const status = document.getElementById("socketStatus");
+  if (status) {
+    status.classList.remove("online", "offline");
+    status.innerHTML = "";
+  }
+
+  const chatWindow = document.getElementById("chatWindow");
+  if (chatWindow) {
+    chatWindow.innerHTML =
+      '<p class="no-results">Select a member to start chatting.</p>';
+    chatWindow.removeEventListener("scroll", handleChatScroll);
+  }
+
+  const messageInput = document.getElementById("messageInput");
+  const sendButton = document.getElementById("sendMessageButton");
+  const imageInput = document.getElementById("messageImageInput");
+  const attachButton = document.getElementById("attachImageButton");
+  if (messageInput) messageInput.disabled = true;
+  if (sendButton) sendButton.disabled = true;
+  if (imageInput) imageInput.disabled = true;
+  if (attachButton) attachButton.disabled = true;
+
+  document
+    .querySelectorAll(".user-item")
+    .forEach((li) => li.classList.remove("active-chat"));
 }
 
 async function loadMessages(prepend = false) {
@@ -1127,9 +1284,13 @@ async function loadMessages(prepend = false) {
     if (prepend) {
       // Save scroll height before prepending so position is preserved
       const prevScrollHeight = chatWindow.scrollHeight;
+      // Insert as one fragment — inserting bubbles one-by-one before
+      // firstChild would reverse their order within the batch.
+      const fragment = document.createDocumentFragment();
       messages.forEach((msg) => {
-        chatWindow.insertBefore(buildMessageBubble(msg), chatWindow.firstChild);
+        fragment.appendChild(buildMessageBubble(msg));
       });
+      chatWindow.insertBefore(fragment, chatWindow.firstChild);
       chatWindow.scrollTop = chatWindow.scrollHeight - prevScrollHeight;
     } else {
       messages.forEach((msg) => {
@@ -1146,13 +1307,19 @@ async function loadMessages(prepend = false) {
   }
 }
 
+function messageImageHTML(imageUrl) {
+  if (!imageUrl) return "";
+  return `<img src="${escapeHTML(imageUrl)}" alt="Shared image" loading="lazy" />`;
+}
+
 function buildMessageBubble(msg) {
   const isSent = msg.sender_id === myUserID;
   const div = document.createElement("div");
   div.className = `message ${isSent ? "sent" : "received"}`;
   div.innerHTML = `
     <span class="sender">${escapeHTML(msg.sender_name)}</span>
-    <p>${escapeHTML(msg.content)}</p>
+    ${msg.content ? `<p>${escapeHTML(msg.content)}</p>` : ""}
+    ${messageImageHTML(msg.image_url)}
     <small>${formatDate(msg.created_at)}</small>
   `;
   return div;
@@ -1170,7 +1337,8 @@ function appendMessage(payload) {
   div.className = `message ${isSent ? "sent" : "received"}`;
   div.innerHTML = `
     <span class="sender">${escapeHTML(payload.sender_name)}</span>
-    <p>${escapeHTML(payload.content)}</p>
+    ${payload.content ? `<p>${escapeHTML(payload.content)}</p>` : ""}
+    ${messageImageHTML(payload.image_url)}
     <small>${formatDate(payload.created_at)}</small>
   `;
   chatWindow.appendChild(div);
@@ -1188,21 +1356,92 @@ function scrollChatToBottom() {
 let lastScrollTime = 0;
 const SCROLL_THROTTLE_MS = 500;
 
+const SCROLL_TOP_THRESHOLD = 2;
+
 function handleChatScroll(event) {
+  const chatWindow = event.target;
+  // scrollTop rarely lands on an exact 0 (fractional values on high-DPI
+  // screens, brief negative overscroll on trackpads) — use a small threshold.
+  if (chatWindow.scrollTop > SCROLL_TOP_THRESHOLD || !hasMoreMessages || isLoadingMessages) return;
+
   const now = Date.now();
   if (now - lastScrollTime < SCROLL_THROTTLE_MS) return;
   lastScrollTime = now;
 
-  const chatWindow = event.target;
-  if (chatWindow.scrollTop === 0 && hasMoreMessages && !isLoadingMessages) {
-    loadMessages(true);
+  loadMessages(true);
+}
+
+// =====================================================
+// IMAGE ATTACHMENT
+// =====================================================
+function showImagePreview(file) {
+  const container = document.getElementById("imagePreviewContainer");
+  const thumb = document.getElementById("imagePreviewThumb");
+  if (!container || !thumb) return;
+
+  thumb.src = URL.createObjectURL(file);
+  container.classList.remove("hidden");
+}
+
+function clearImageSelection() {
+  selectedImageFile = null;
+
+  const imageInput = document.getElementById("messageImageInput");
+  if (imageInput) imageInput.value = "";
+
+  const container = document.getElementById("imagePreviewContainer");
+  const thumb = document.getElementById("imagePreviewThumb");
+  if (thumb && thumb.src) {
+    URL.revokeObjectURL(thumb.src);
+    thumb.src = "";
   }
+  if (container) container.classList.add("hidden");
+}
+
+const attachImageButton = document.getElementById("attachImageButton");
+const messageImageInput = document.getElementById("messageImageInput");
+if (attachImageButton && messageImageInput) {
+  attachImageButton.addEventListener("click", () => messageImageInput.click());
+  messageImageInput.addEventListener("change", () => {
+    const file = messageImageInput.files && messageImageInput.files[0];
+    if (!file) return;
+    selectedImageFile = file;
+    showImagePreview(file);
+  });
+}
+
+const removeImageButton = document.getElementById("removeImageButton");
+if (removeImageButton) {
+  removeImageButton.addEventListener("click", clearImageSelection);
+}
+
+async function uploadSelectedImage() {
+  const formData = new FormData();
+  formData.append("image", selectedImageFile);
+
+  const response = await fetch("/api/messages/upload", {
+    method: "POST",
+    credentials: "include",
+    body: formData,
+  });
+
+  if (!response.ok) {
+    let errorMessage = "Could not upload image.";
+    try {
+      const error = await response.json();
+      errorMessage = error.error || error.message || errorMessage;
+    } catch (_) {}
+    throw new Error(errorMessage);
+  }
+
+  const data = await response.json();
+  return data.image_url;
 }
 
 // =====================================================
 // SEND MESSAGE VIA WEBSOCKET — Epic 8
 // =====================================================
-function sendMessage(event) {
+async function sendMessage(event) {
   event.preventDefault();
   if (!currentChatUserID) {
     alert("Please select a conversation first.");
@@ -1215,17 +1454,30 @@ function sendMessage(event) {
 
   const messageInput = document.getElementById("messageInput");
   const content = messageInput ? messageInput.value.trim() : "";
-  if (!content) return;
+  if (!content && !selectedImageFile) return;
+
+  let imageUrl = "";
+  if (selectedImageFile) {
+    try {
+      imageUrl = await uploadSelectedImage();
+    } catch (error) {
+      console.error(error);
+      alert(error.message || "Could not upload image.");
+      return;
+    }
+  }
 
   socket.send(
     JSON.stringify({
       type: "chat_message",
       receiver_id: currentChatUserID,
       content: content,
+      image_url: imageUrl,
     }),
   );
 
   messageInput.value = "";
+  clearImageSelection();
 }
 
 const messageForm = document.getElementById("messageForm");

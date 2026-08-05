@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"database/sql"
 	"log"
 	"net/http"
 	"path"
@@ -11,12 +12,13 @@ import (
 )
 
 type messageResponse struct {
-	ID         string `json:"id"`
-	SenderID   string `json:"sender_id"`
-	SenderName string `json:"sender_name"`
-	ReceiverID string `json:"receiver_id"`
-	Content    string `json:"content"`
-	CreatedAt  string `json:"created_at"`
+	ID         string  `json:"id"`
+	SenderID   string  `json:"sender_id"`
+	SenderName string  `json:"sender_name"`
+	ReceiverID string  `json:"receiver_id"`
+	Content    string  `json:"content"`
+	ImageURL   *string `json:"image_url,omitempty"`
+	CreatedAt  string  `json:"created_at"`
 }
 
 func GetMessages(w http.ResponseWriter, r *http.Request) {
@@ -58,6 +60,7 @@ func GetMessages(w http.ResponseWriter, r *http.Request) {
 			s.nickname,
 			m.receiver_id,
 			m.content,
+			m.image_url,
 			m.created_at
 		FROM messages m
 		JOIN users s ON m.sender_id = s.id
@@ -76,17 +79,22 @@ func GetMessages(w http.ResponseWriter, r *http.Request) {
 	messages := []messageResponse{}
 	for rows.Next() {
 		var m messageResponse
+		var imageURL sql.NullString
 		if err := rows.Scan(
 			&m.ID,
 			&m.SenderID,
 			&m.SenderName,
 			&m.ReceiverID,
 			&m.Content,
+			&imageURL,
 			&m.CreatedAt,
 		); err != nil {
 			log.Printf("[ERROR] [GetMessages Scan]: %v", err)
 			utils.WriteError(w, http.StatusInternalServerError, "error processing messages")
 			return
+		}
+		if imageURL.Valid {
+			m.ImageURL = &imageURL.String
 		}
 		messages = append(messages, m)
 	}
