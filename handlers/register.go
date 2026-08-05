@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"database/sql"
 	"encoding/json"
 	"errors"
 	"log"
@@ -48,6 +49,11 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if len(payload.Password) < 12 {
+		utils.WriteError(w, http.StatusBadRequest, "password must be at least 12 characters long")
+		return
+	}
+
 	if strings.Contains(payload.Nickname, "@") {
 		utils.WriteError(w, http.StatusBadRequest, "nickname cannot contain @")
 		return
@@ -55,6 +61,28 @@ func Register(w http.ResponseWriter, r *http.Request) {
 
 	if !strings.Contains(payload.Email, "@") {
 		utils.WriteError(w, http.StatusBadRequest, "email must contain @")
+		return
+	}
+
+	// SQLite's UNIQUE constraint is case-sensitive, so "Bob"/"bob" or
+	// "A@B.com"/"a@b.com" would otherwise be accepted as distinct accounts
+	// even though login treats them as the same identifier.
+	var existingField string
+	err := db.DB.QueryRow(
+		`SELECT CASE WHEN LOWER(nickname) = LOWER(?) THEN 'nickname' ELSE 'email' END
+		 FROM users WHERE LOWER(nickname) = LOWER(?) OR LOWER(email) = LOWER(?) LIMIT 1`,
+		payload.Nickname, payload.Nickname, payload.Email,
+	).Scan(&existingField)
+	if err == nil {
+		if existingField == "nickname" {
+			utils.WriteError(w, http.StatusConflict, "nickname already taken")
+		} else {
+			utils.WriteError(w, http.StatusConflict, "email already registered")
+		}
+		return
+	} else if !errors.Is(err, sql.ErrNoRows) {
+		log.Printf("[ERROR] [Register Uniqueness Check]: %v", err)
+		utils.WriteError(w, http.StatusInternalServerError, "could not create user")
 		return
 	}
 

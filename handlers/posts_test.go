@@ -92,6 +92,19 @@ func setupPostsDB(t *testing.T) {
 	}
 
 	_, err = mockDB.Exec(`
+		CREATE TABLE post_likes (
+			post_id TEXT NOT NULL, user_id TEXT NOT NULL,
+			created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			PRIMARY KEY (post_id, user_id),
+			FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE,
+			FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+		);
+	`)
+	if err != nil {
+		t.Fatalf("failed to create post_likes table: %v", err)
+	}
+
+	_, err = mockDB.Exec(`
 		CREATE TABLE sessions (
 			session_id TEXT PRIMARY KEY, user_id TEXT NOT NULL,
 			created_at DATETIME DEFAULT CURRENT_TIMESTAMP,

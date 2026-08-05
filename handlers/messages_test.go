@@ -45,6 +45,7 @@ func setupMessagesDB(t *testing.T) {
 		sender_id TEXT NOT NULL,
 		receiver_id TEXT NOT NULL,
 		content TEXT NOT NULL,
+		image_url TEXT,
 		created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 	)`)
 

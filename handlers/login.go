@@ -57,12 +57,12 @@ func Login(w http.ResponseWriter, r *http.Request) {
 
 	if strings.Contains(payload.Identifier, "@") {
 		err = db.DB.QueryRow(
-			`SELECT id, password_hash FROM users WHERE email = ?`,
+			`SELECT id, password_hash FROM users WHERE LOWER(email) = LOWER(?)`,
 			payload.Identifier,
 		).Scan(&id, &passwordHash)
 	} else {
 		err = db.DB.QueryRow(
-			`SELECT id, password_hash FROM users WHERE nickname = ?`,
+			`SELECT id, password_hash FROM users WHERE LOWER(nickname) = LOWER(?)`,
 			payload.Identifier,
 		).Scan(&id, &passwordHash)
 	}
