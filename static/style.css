@@ -717,6 +717,11 @@ header {
   margin-bottom: 25px;
   color: #1f2937;
 }
+/* Clear the close/logout buttons pinned to the top corners when the heading
+   is the first thing in the modal (no category badge etc. above it) */
+#createDiscussionModal .modal-content h2 {
+  margin-top: 30px;
+}
 /* ========================================================== CLOSE BUTTON ========================================================== */
 .close-modal {
   position: absolute;

@@ -414,6 +414,18 @@ async function logoutUser() {
   registerForm.reset();
   clearErrors();
   activeCategory = "all";
+
+  // Logout can be triggered from inside a modal (discussion, profile,
+  // messages) — close them all so none is left showing over the login page.
+  document.querySelectorAll(".modal").forEach((modal) => {
+    modal.classList.add("hidden");
+  });
+  document.querySelectorAll(".dropdown").forEach((dropdown) => {
+    dropdown.classList.add("hidden");
+  });
+  currentPostId = null;
+  resetChatPanel();
+
   goToLogin();
 }
 
@@ -445,6 +457,13 @@ if (logoutFromDiscussion) {
 const logoutFromMessages = document.getElementById("logoutFromMessages");
 if (logoutFromMessages) {
   logoutFromMessages.addEventListener("click", logoutUser);
+}
+
+const logoutFromCreateDiscussion = document.getElementById(
+  "logoutFromCreateDiscussion",
+);
+if (logoutFromCreateDiscussion) {
+  logoutFromCreateDiscussion.addEventListener("click", logoutUser);
 }
 
 // =====================================================
