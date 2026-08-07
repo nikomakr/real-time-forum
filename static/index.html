@@ -325,58 +325,12 @@
         <form id="discussionForm" action="#" method="post" novalidate>
           <label for="discussionTitle">Title</label>
           <input type="text" id="discussionTitle" name="title" maxlength="150" required />
-          <label for="discussionCategory">Category</label>
-          <select id="discussionCategory" name="category_id" required>
-            <option value="">Select a category</option>
-            <optgroup label="Country">
-              <option value="cat-001">England</option>
-              <option value="cat-002">Wales</option>
-              <option value="cat-003">Scotland</option>
-              <option value="cat-004">N. Ireland</option>
-            </optgroup>
-            <optgroup label="Benefits">
-              <option value="cat-016">Universal Credit</option>
-              <option value="cat-011">Carer's Allowance</option>
-              <option value="cat-012">Employment and Support Allowance (ESA)</option>
-              <option value="cat-013">Personal Independence Payment (PIP)</option>
-              <option value="cat-015">Jobseeker's Allowance (JSA)</option>
-              <option value="cat-017">Discretionary Housing Payments (DHP)</option>
-              <option value="cat-021">Other Benefits</option>
-            </optgroup>
-            <optgroup label="Legal Advice">
-              <option value="cat-030">Eviction &amp; Possessions</option>
-              <option value="cat-031">Disrepair &amp; Safety</option>
-              <option value="cat-032">Deposit Disputes</option>
-              <option value="cat-033">Harassment and Quiet Enjoyment</option>
-              <option value="cat-041">Section 21 Notice</option>
-              <option value="cat-042">Section 8 Notice</option>
-              <option value="cat-043">Rent Increase Disputes</option>
-              <option value="cat-044">Other Legal</option>
-            </optgroup>
-            <optgroup label="Social and Council Housing">
-              <option value="cat-053">Secured Tenancy</option>
-              <option value="cat-054">Assured Tenancy</option>
-              <option value="cat-050">Social Rent</option>
-              <option value="cat-057">Other Social Housing</option>
-            </optgroup>
-            <optgroup label="Private Renters">
-              <option value="cat-062">Assured Shorthold Tenancy (AST)</option>
-              <option value="cat-063">Assured Periodic Tenancy (APT)</option>
-              <option value="cat-064">Excluded Tenancy (Lodging)</option>
-              <option value="cat-067">Other Private Renting</option>
-            </optgroup>
-            <optgroup label="Housing Disrepair &amp; Safety">
-              <option value="cat-070">Damp and Mould</option>
-              <option value="cat-071">Structural Defects</option>
-              <option value="cat-072">Heating and Hot Water Failure</option>
-              <option value="cat-079">Other Disrepair</option>
-            </optgroup>
-            <optgroup label="Other">
-              <option value="cat-999">Other</option>
-            </optgroup>
-          </select>
           <label for="discussionBody">Discussion</label>
           <textarea id="discussionBody" name="content" rows="8" maxlength="5000" placeholder="Describe your issue or share your experience..." required></textarea>
+          <label id="discussionCategoriesLabel">Categories <span class="field-hint">(choose one or more)</span></label>
+          <div id="discussionCategories" class="category-multiselect" role="group" aria-labelledby="discussionCategoriesLabel">
+            <!-- Category checkboxes injected here by app.js from GET /api/categories -->
+          </div>
           <button type="submit" id="createDiscussionButton" class="primary-btn">Post Discussion</button>
         </form>
       </div>
@@ -392,10 +346,10 @@
           <svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-logout"/></svg>
           Logout
         </button>
-        <span class="category england"></span>
         <h2 id="discussionHeading"></h2>
         <div class="discussion-meta"></div>
         <div class="discussion-content"><p></p></div>
+        <div class="category-badges"></div>
         <hr />
         <section class="comments" aria-label="Replies">
           <h3>Replies</h3>
@@ -494,7 +448,7 @@
     <!-- JAVASCRIPT TEMPLATES -->
     <template id="discussionTemplate">
       <article class="discussion-card">
-        <span class="category"></span>
+        <div class="category-badges"></div>
         <h3></h3>
         <div class="discussion-meta"></div>
         <p class="discussion-preview"></p>

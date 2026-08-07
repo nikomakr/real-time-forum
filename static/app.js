@@ -530,6 +530,21 @@ function splitAndTrim(str, sep) {
     .filter((s) => s !== "");
 }
 
+// Renders one pill per category a post is tagged under, into `container`
+// (a ".category-badges" wrapper). A post can belong to several categories,
+// so this replaces the old single-badge rendering.
+function renderCategoryBadges(container, categories) {
+  if (!container) return;
+  container.innerHTML = "";
+  const names = Array.isArray(categories) ? categories : [];
+  names.forEach((name) => {
+    const badge = document.createElement("span");
+    badge.className = `category ${slugify(name)}`;
+    badge.textContent = name;
+    container.appendChild(badge);
+  });
+}
+
 // =====================================================
 // CATEGORY TILES — loaded from GET /api/categories
 // =====================================================
@@ -691,14 +706,10 @@ function renderFeed(posts) {
 function buildPostCard(post) {
   const template = discussionTemplate.content.cloneNode(true);
 
-  const firstCategory =
-    Array.isArray(post.categories) && post.categories.length > 0
-      ? post.categories[0]
-      : "";
-
-  const categoryEl = template.querySelector(".category");
-  categoryEl.textContent = firstCategory;
-  categoryEl.className = `category ${slugify(firstCategory)}`;
+  renderCategoryBadges(
+    template.querySelector(".category-badges"),
+    post.categories,
+  );
 
   template.querySelector("h3").textContent = post.title || "";
 
@@ -792,14 +803,10 @@ async function openPostDetail(postId) {
 }
 
 function renderPostDetail(post) {
-  const firstCategory =
-    Array.isArray(post.categories) && post.categories.length > 0
-      ? post.categories[0]
-      : "";
-
-  const categoryEl = discussionModal.querySelector(".category");
-  categoryEl.textContent = firstCategory;
-  categoryEl.className = `category ${slugify(firstCategory)}`;
+  renderCategoryBadges(
+    discussionModal.querySelector(".category-badges"),
+    post.categories,
+  );
 
   document.getElementById("discussionHeading").textContent = post.title || "";
 
@@ -880,7 +887,53 @@ if (commentForm) {
 // =====================================================
 // CREATE POST VIEW
 // =====================================================
-function openCreatePost() {
+// Builds the "choose one or more categories" checklist inside the create-
+// discussion form from the same /api/categories data the sidebar tiles use,
+// so a post can be tagged under several categories at once.
+function renderDiscussionCategoryOptions() {
+  const container = document.getElementById("discussionCategories");
+  if (!container) return;
+  container.innerHTML = "";
+
+  categoryGroups.forEach((group) => {
+    const groupEl = document.createElement("div");
+    groupEl.className = "cms-group";
+
+    const groupLabel = document.createElement("h4");
+    groupLabel.className = "cms-group-label";
+    groupLabel.textContent = group.name;
+    groupEl.appendChild(groupLabel);
+
+    let currentSubGroup = null;
+    group.categories.forEach((cat) => {
+      if (cat.sub_group && cat.sub_group !== currentSubGroup) {
+        currentSubGroup = cat.sub_group;
+        const subLabel = document.createElement("span");
+        subLabel.className = "cms-subgroup-label";
+        subLabel.textContent = cat.sub_group;
+        groupEl.appendChild(subLabel);
+      }
+
+      const optionLabel = document.createElement("label");
+      optionLabel.className = "cms-option";
+
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.name = "category_id";
+      checkbox.value = cat.id;
+
+      optionLabel.appendChild(checkbox);
+      optionLabel.append(cat.name);
+      groupEl.appendChild(optionLabel);
+    });
+
+    container.appendChild(groupEl);
+  });
+}
+
+async function openCreatePost() {
+  if (categoryGroups.length === 0) await loadCategoryTiles();
+  renderDiscussionCategoryOptions();
   if (createDiscussionModal) createDiscussionModal.classList.remove("hidden");
 }
 
@@ -893,19 +946,21 @@ async function submitPost(event) {
   event.preventDefault();
 
   const titleEl = document.getElementById("discussionTitle");
-  const categoryEl = document.getElementById("discussionCategory");
   const bodyEl = document.getElementById("discussionBody");
+  const checkedCategories = document.querySelectorAll(
+    "#discussionCategories input[type=checkbox]:checked",
+  );
 
   const title = titleEl ? titleEl.value.trim() : "";
-  const categoryId = categoryEl ? categoryEl.value : "";
+  const categoryIds = [...checkedCategories].map((cb) => cb.value);
   const content = bodyEl ? bodyEl.value.trim() : "";
 
   if (!title) {
     alert("Please enter a title.");
     return;
   }
-  if (!categoryId) {
-    alert("Please select a category.");
+  if (categoryIds.length === 0) {
+    alert("Please select at least one category.");
     return;
   }
   if (!content) {
@@ -918,7 +973,7 @@ async function submitPost(event) {
       method: "POST",
       credentials: "include",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title, content, categories: [categoryId] }),
+      body: JSON.stringify({ title, content, categories: categoryIds }),
     });
 
     if (!response.ok) {
@@ -1113,6 +1168,23 @@ async function loadUsers() {
   }
 }
 
+// Sort order: special characters/symbols first, numbers second, letters
+// A-Z last — case-insensitive, so 'alice', 'Alice', and 'ALICE' group together.
+function getNicknameRank(char) {
+  if (/[a-zA-Z]/.test(char)) return 2;
+  if (/[0-9]/.test(char)) return 1;
+  return 0;
+}
+
+function compareNicknames(a, b) {
+  const nameA = a.nickname || "";
+  const nameB = b.nickname || "";
+  const rankA = getNicknameRank(nameA.charAt(0));
+  const rankB = getNicknameRank(nameB.charAt(0));
+  if (rankA !== rankB) return rankA - rankB;
+  return nameA.localeCompare(nameB, undefined, { sensitivity: "base" });
+}
+
 function renderUserLists(users) {
   const onlineList = document.getElementById("onlineList");
   const offlineList = document.getElementById("offlineList");
@@ -1121,8 +1193,10 @@ function renderUserLists(users) {
   onlineList.innerHTML = "";
   offlineList.innerHTML = "";
 
-  const onlineUsers = users.filter((u) => u.is_online);
-  const offlineUsers = users.filter((u) => !u.is_online);
+  const onlineUsers = users.filter((u) => u.is_online).sort(compareNicknames);
+  const offlineUsers = users
+    .filter((u) => !u.is_online)
+    .sort(compareNicknames);
 
   // Update panel headings with live counts
   const onlineHeading = onlineList.previousElementSibling;
